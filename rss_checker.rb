@@ -9,8 +9,17 @@ require "pathname"
 require "fileutils"
 require "mail"
 
+@password_path = 'conf/rss/password.txt'
+@kindle_path = 'conf/rss/kindle_email.txt'
+@feeds_path = 'conf/rss/feeds.tsv'
+@feed_data_path = 'conf/rss/feed_data.json'
+@uname_path = 'conf/rss/uname.txt'
+
 class ChapterHandler
-	def initialize(urls, names)
+	def initialize(urls, names, unamef, passwordf, kindlef)
+		@unamef = unamef
+		@passwordf = passwordf
+		@kindlef = kindlef
 		@chaps = Array.new
 		if not urls.empty?
 			for ii in 0..urls.length-1
@@ -51,7 +60,7 @@ class ChapterHandler
 		@chaps.each { |chap| chap.convert }
 	end
 	def kindleall
-		@chaps.each { |chap| chap.kindle }
+		@chaps.each { |chap| chap.kindle(@unamef, @passwordf, @kindlef) }
 	end # Add any new chapter classes for parsing new webpages to the logic here #edit the control flow in here if you make custom classes
 end
 
@@ -82,9 +91,8 @@ class Chapter
 		(self.name + "_" + self.title).gsub(/\u00A0/, ' ').gsub(/\u2013/, '-').gsub(' ','_').gsub(':','_')
 	end
 	def write
-		text = "<h2>" + self.name + "</h2>\n"
+		text = "<h1>" + self.name + "\n" self.title + "</h1>\n"
 		text << "<i>" + Time.now.inspect + "</i>\n"
-		text << "<h1>" + self.title + "</h1>\n"
 		text << self.text.to_s
 		File.new('data/html/' + self.cleantitle + '.html', 'w').syswrite text
 	end
@@ -92,10 +100,10 @@ class Chapter
 		title = self.cleantitle
 		`ebook-convert "data/html/#{title}.html" "data/mobi/#{title}.mobi" --title "#{@name + ": " + self.title}"  --authors "#{self.author}"`
 	end
-	def kindle
+	def kindle(unamef, passwordf, kindlef)
 		title = self.cleantitle
 		if File.exist?('data/mobi/' + title + '.mobi')
-			KindleEmail.new.send_file('data/mobi/' + title + '.mobi')
+			KindleEmail.new.send_file('data/mobi/' + title + '.mobi', unamef, passwordf, kindlef)
 		else
 			puts "nope"
 		end
@@ -146,21 +154,20 @@ end
 ###
 
 class KindleEmail
-	def send_file(fname)
+	def send_file(fname, unamef, passwordf, kindlef)
 		gmx_options = { :address              => "mail.gmx.com",
                 :port                 => 587,
-                :user_name            => File.read('conf/rss/uname.txt'),
-                :password             => File.read('conf/rss/password.txt'),
+                :user_name            => File.read(unamef).gsub( "\n", "" ),
+                :password             => File.read(passwordf).gsub( "\n", "" ),
                 :authentication       => 'plain',
                 :enable_starttls_auto => true  }
-
 		Mail.defaults do
 			delivery_method :smtp, gmx_options
 		end
 
 		Mail.deliver do
-		  to File.read('kindle_email.txt')
-		  from File.read('uname.txt')
+		  to File.read(kindlef)
+		  from File.read(unamef)
 		  subject ' '
 		  add_file fname
 		end
@@ -318,27 +325,27 @@ def main
 		FileUtils.mkdir_p "data/mobi"
 	end
 	puts "====Feeds====="
-	FeedList.new("conf/rss/feeds.tsv").to_a.each do |feed|
+	FeedList.new(@feeds_path).to_a.each do |feed|
 		puts feed
 		puts ""
 	end
 	puts "=============="
 	while true
-		unless Pathname.new("conf/rss/feed_data.json").exist?
-			FeedChecker.new("conf/rss/feeds.tsv").store("conf/rss/feed_data.json")
+		unless Pathname.new(@feed_data_path).exist?
+			FeedChecker.new(@feeds_path).store(@feed_data_path)
 			puts "No pre-existing stored feeds, refreshing..."
 		end
-		if get_json("conf/rss/feed_data.json").length != FeedChecker.new("conf/rss/feeds.tsv").to_a.length
-			FeedChecker.new("conf/rss/feeds.tsv").store("conf/rss/feed_data.json")
+		if get_json(@feed_data_path).length != FeedChecker.new(@feeds_path).to_a.length
+			FeedChecker.new(@feeds_path).store(@feed_data_path)
 			puts "Length of stored feeds does not match list of feeds, refreshing..."
 		end
 
-		feeddat = FeedChecker.new("conf/rss/feeds.tsv")
-		urls = feeddat.check_get_flat_urls("conf/rss/feed_data.json")
-		names = feeddat.check_get_flat_names("conf/rss/feed_data.json")
+		feeddat = FeedChecker.new(@feeds_path)
+		urls = feeddat.check_get_flat_urls(@feed_data_path)
+		names = feeddat.check_get_flat_names(@feed_data_path)
 		unless urls.empty?
-			newchaps = ChapterHandler.new(urls,names)
-			feeddat.store("conf/rss/feed_data.json")
+			newchaps = ChapterHandler.new(urls,names,@uname_path,@password_path,@kindle_path)
+			feeddat.store(@feed_data_path)
 			output = "------\n"
 			output << Time.now.inspect + "\n"
 			for ii in 0..newchaps.titles.length-1
