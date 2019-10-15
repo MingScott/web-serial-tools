@@ -318,27 +318,27 @@ def main
 		FileUtils.mkdir_p "data/mobi"
 	end
 	puts "====Feeds====="
-	FeedList.new("feeds.tsv").to_a.each do |feed|
+	FeedList.new("conf/rss/feeds.tsv").to_a.each do |feed|
 		puts feed
 		puts ""
 	end
 	puts "=============="
 	while true
-		unless Pathname.new("feed_data.json").exist?
-			FeedChecker.new("feeds.tsv").store("feed_data.json")
+		unless Pathname.new("conf/rss/feed_data.json").exist?
+			FeedChecker.new("conf/rss/feeds.tsv").store("conf/rss/feed_data.json")
 			puts "No pre-existing stored feeds, refreshing..."
 		end
-		if get_json("feed_data.json").length != FeedChecker.new("feeds.tsv").to_a.length
-			FeedChecker.new("feeds.tsv").store("feed_data.json")
+		if get_json("conf/rss/feed_data.json").length != FeedChecker.new("conf/rss/feeds.tsv").to_a.length
+			FeedChecker.new("conf/rss/feeds.tsv").store("conf/rss/feed_data.json")
 			puts "Length of stored feeds does not match list of feeds, refreshing..."
 		end
 
-		feeddat = FeedChecker.new("feeds.tsv")
-		urls = feeddat.check_get_flat_urls("feed_data.json")
-		names = feeddat.check_get_flat_names("feed_data.json")
+		feeddat = FeedChecker.new("conf/rss/feeds.tsv")
+		urls = feeddat.check_get_flat_urls("conf/rss/feed_data.json")
+		names = feeddat.check_get_flat_names("conf/rss/feed_data.json")
 		unless urls.empty?
 			newchaps = ChapterHandler.new(urls,names)
-			feeddat.store("feed_data.json")
+			feeddat.store("conf/rss/feed_data.json")
 			output = "------\n"
 			output << Time.now.inspect + "\n"
 			for ii in 0..newchaps.titles.length-1
