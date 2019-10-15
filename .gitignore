@@ -1,4 +1,4 @@
 password.txt
 uname.txt
-conf/rss/*
+*.json
 /data/*

@@ -149,8 +149,8 @@ class KindleEmail
 	def send_file(fname)
 		gmx_options = { :address              => "mail.gmx.com",
                 :port                 => 587,
-                :user_name            => File.read('uname.txt'),
-                :password             => File.read('password.txt'),
+                :user_name            => File.read('conf/rss/uname.txt'),
+                :password             => File.read('conf/rss/password.txt'),
                 :authentication       => 'plain',
                 :enable_starttls_auto => true  }
 
