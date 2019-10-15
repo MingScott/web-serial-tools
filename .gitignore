@@ -1,4 +1,3 @@
-password.txt
-uname.txt
-*.json
+/conf/rss/*.json
+/conf/rss/*.txt
 /data/*
