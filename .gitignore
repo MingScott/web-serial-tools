@@ -1,2 +1,4 @@
 password.txt
 uname.txt
+conf/rss/*
+/data/*
