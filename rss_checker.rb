@@ -91,7 +91,7 @@ class Chapter
 		(self.name + "_" + self.title).gsub(/\u00A0/, ' ').gsub(/\u2013/, '-').gsub(' ','_').gsub(':','_')
 	end
 	def write
-		text = "<h1>" + self.name + "\n" self.title + "</h1>\n"
+		text = "<h1>" + self.name + "\n" + self.title + "</h1>\n"
 		text << "<i>" + Time.now.inspect + "</i>\n"
 		text << self.text.to_s
 		File.new('data/html/' + self.cleantitle + '.html', 'w').syswrite text
