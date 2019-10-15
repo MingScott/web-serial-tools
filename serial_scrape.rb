@@ -13,29 +13,29 @@ author = ""
 kindle = ""
 email = ""
 password = ""
-path = ""
+path = "data"
 OptionParser.new do |o|
 	o.banner = ""
 	o.on("-n", "--name NAME", "Provide book name") do |serial|
-		@book_title << serial
+		@book_title = serial
 	end
 	o.on("-s", "--start LINK" , "Provide 1st chapter link") do |link|
-		start << link
+		start = link
 	end
 	o.on("-a", "--author NAME", "Provide name of author") do |a|
-		author << a
+		author = a
 	end
 	o.on("-t", "--to EMAIL", "email address to send to") do |k|
-		kindle << k
+		kindle = k
 	end
 	o.on("-f", "--from EMAIL", "email address to send from") do |f|
-		email << f
+		email = f
 	end
 	o.on("-p", "--password PASSWORD", "Password for the email address to send from") do |p|
-		password << p
+		password = p
 	end
 	o.on("-d","--directory PATH", "Directory to write files to") do |d|
-		path << d
+		path = d
 		path = path + '/' unless path[-1] == '/' || path.empty?
 	end
 end.parse!
