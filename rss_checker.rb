@@ -331,6 +331,7 @@ def main
 	end
 	puts "=============="
 	while true
+          begin
 		unless Pathname.new(@feed_data_path).exist?
 			FeedChecker.new(@feeds_path).store(@feed_data_path)
 			puts "No pre-existing stored feeds, refreshing..."
@@ -363,6 +364,10 @@ def main
 			puts "======"
 		end
 		sleep 120
+          rescue
+            p "Error... retrying in 10s"
+            sleep 10
+          end
 	end
 end
 
