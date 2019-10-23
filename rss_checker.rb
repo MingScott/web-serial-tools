@@ -130,8 +130,22 @@ class WardChapter < Chapter
 	end
 
 	def text
-		content = @doc.css('div.entry-content').first.css('p')
-		content[1..content.length-1]
+		text = @doc.css("div.entry-content").first
+		paras = text.css("p")
+		divs = text.css("div")
+
+		to_remove = []
+		paras.each do |l|
+			to_remove << l.to_s if l.content.gsub(/[^A-Za-z]/," ").squeeze = "Previous Chapter Next Chapter"
+		end
+		divs.each do |d|
+			to_remove << d.to_s if d["class"].include? "shar" or d["class"].include? "wpa" if d.keys.join(" ").include? "class"
+		end
+		stext = text.to_s
+		to_remove.each do |r|
+			stext = stext.gsub r, ""
+		end
+		return stext
 	end
 
 	def author
@@ -360,7 +374,7 @@ def main
 			puts "Converting..."
 			newchaps.kindleall
 			puts "Sending to kindle..."
-			puts "Done."
+			puts "Done."	
 			puts "======"
 		end
 		sleep 120
