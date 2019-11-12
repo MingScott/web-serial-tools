@@ -42,7 +42,7 @@ module SerialChapter
 	class RRChapter < Chapter #Royalroad
 		def text
 			foreword = @doc.css "div.author-note"
-			doc = @doc.css("div.chapter-inner.chapter-content").first
+			doc = @doc.css("div.chapter-inner.chapter-content").first.children
 			return "<div align=\"right\"><i>#{foreword.to_s}</i></div>\n#{doc.to_s}\n"
 		end 
 	end
