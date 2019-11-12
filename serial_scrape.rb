@@ -90,7 +90,8 @@ class Book
 		return title + @toc + @body
 	end
 
-	def write_to_file(fname="#{@title}.html")
+        def write_to_file(fname="#{@title}.html")
+                puts fname
 		File.open fname, 'w' do |f| ; f.puts self.full_text;
 		end
 		@fname = fname
@@ -135,6 +136,7 @@ url = start
 ch1 = classFinder(url)
 ch1 = ch1.new url
 book = Book.new ch1, @book_title, author
-book.write_to_file path + @book_title + ".html"
+filename = @book_title.gsub(" ","_")
+book.write_to_file path + filename + ".html"
 book.convert_to_mobi
 publish book, email, password, kindle unless kindle.empty?

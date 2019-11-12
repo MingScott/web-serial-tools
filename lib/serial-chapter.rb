@@ -66,6 +66,9 @@ module SerialChapter
 			end
 			return stext
 		end
+                def nextch
+                  return self.linksearch("NEXT CHAPTER")
+                end
 		def title
 			@doc.css("h1.entry-title").first.content
 		end
@@ -84,6 +87,22 @@ module SerialChapter
 		end
 		def text
 			return @doc.css("div.entry-content p").to_s
+		end
+		def linksearch(pattern)
+			find = false
+			links = @doc.css "div.nav-links a" 
+			links.each do |l|
+				if l.content.upcase.include?(pattern)
+					find = l["href"]
+				end
+			end
+			if find
+				unless find[0..3] == "http"
+					domain_index = @url.index("/",8)
+					find = @url[0..domain_index-1] + find
+				end
+			end
+			return find
 		end
 	end
 

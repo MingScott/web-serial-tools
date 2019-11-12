@@ -136,7 +136,7 @@ class WardChapter < Chapter
 
 		to_remove = []
 		paras.each do |l|
-			to_remove << l.to_s if l.content.gsub(/[^A-Za-z]/," ").squeeze = "Previous Chapter Next Chapter"
+			to_remove << l.to_s if l.content.gsub(/[^A-Za-z]/," ").squeeze == "Previous Chapter Next Chapter"
 		end
 		divs.each do |d|
 			to_remove << d.to_s if d["class"].include? "shar" or d["class"].include? "wpa" if d.keys.join(" ").include? "class"
@@ -379,7 +379,7 @@ def main
 		end
 		sleep 120
           rescue
-            p "Error... retrying in 10s"
+           p "Error... retrying in 10s"
             sleep 10
           end
 	end
