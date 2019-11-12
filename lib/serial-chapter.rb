@@ -43,7 +43,6 @@ module SerialChapter
 		def text
 			foreword = @doc.css "div.author-note"
 			doc = @doc.css("div.chapter-inner.chapter-content").first
-			doc = doc.css "p"
 			return "<div align=\"right\"><i>#{foreword.to_s}</i></div>\n#{doc.to_s}\n"
 		end 
 	end

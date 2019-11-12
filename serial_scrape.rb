@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 require 'nokogiri'
 require 'open-uri'
 require 'optparse'
@@ -13,7 +14,7 @@ author = ""
 kindle = ""
 email = ""
 password = ""
-path = "data"
+path = "data/"
 OptionParser.new do |o|
 	o.banner = ""
 	o.on("-n", "--name NAME", "Provide book name") do |serial|
