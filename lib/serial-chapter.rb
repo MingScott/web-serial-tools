@@ -11,6 +11,9 @@ module SerialChapter
 		end
 
 		def title ;		@doc.css("h1").first.content ; end
+		def cleantitle
+			self.title.gsub(/\u00A0/, ' ').gsub(/\u2013/, '-').gsub(' ','_').gsub(':','_')
+		end
 		def text ; 		@doc.css("p").to_s; end
 		def url ;		@url; end
 

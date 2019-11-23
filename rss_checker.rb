@@ -4,16 +4,59 @@ require "nokogiri"
 require "open-uri"
 require "csv"
 require "json"
-require "pp"
 require "pathname"
 require "fileutils"
 require "mail"
+
+require_relative 'lib/serial-chapter.rb'
+include SerialChapter
 
 @password_path = 'conf/rss/password.txt'
 @kindle_path = 'conf/rss/kindle_email.txt'
 @feeds_path = 'conf/rss/feeds.tsv'
 @feed_data_path = 'conf/rss/feed_data.json'
 @uname_path = 'conf/rss/uname.txt'
+
+def write(chap)
+	text = "<h1>" + chap.name + "\n" + chap.title + "</h1>\n"
+	text << "<i>" + Time.now.inspect + "</i>\n"
+	text << chap.text
+	File.new('data/html/' + chap.cleantitle + '.html', 'w').syswrite text
+end
+def convert(chap)
+	title = chap.cleantitle
+	`ebook-convert "data/html/#{title}.html" "data/mobi/#{title}.mobi" --title "#{@name + ": " + self.title}"  --authors "#{self.author}"`
+end
+def kindle(chap, unamef, passwordf, kindlef)
+	title = chap.cleantitle
+	if File.exist?('data/mobi/' + title + '.mobi')
+		KindleEmail.new.send_file('data/mobi/' + title + '.mobi', unamef, passwordf, kindlef)
+	else
+		puts "nope"
+	end
+end
+
+def classFinder(url)
+	patterns = {
+		"royalroad" => 				RRChapter,
+		"wordpress" => 				WPChapter,
+		"parahumans" => 			WardChapter,
+		"practicalguidetoevil" => 	PGTEChapter,
+		"wanderinginn" =>			WanderingInn
+	}
+	@chapclass = ""
+	patterns.keys.each do |k|
+		@chapclass = if url.include? k
+			patterns[k]
+		else
+			@chapclass
+		end
+	end
+	if @chapclass == ""
+		@chapclass = Chapter
+	end
+	return @chapclass
+end
 
 class ChapterHandler
 	def initialize(urls, names, unamef, passwordf, kindlef)
@@ -25,6 +68,7 @@ class ChapterHandler
 			for ii in 0..urls.length-1
 				link = urls[ii]
 				sname = names[ii]
+				@chaps << classFinder(link).new link
 				if link.include?("practicalguidetoevil")
 					@chaps << PgteChapter.new(link, sname)
 				elsif link.include?("royalroad")
@@ -54,116 +98,116 @@ class ChapterHandler
 		out
 	end
 	def writeall
-		@chaps.each {|chap| chap.write }
+		@chaps.each {|chap| write chap }
 	end
 	def convertall
-		@chaps.each { |chap| chap.convert }
+		@chaps.each { |chap| convert chap }
 	end
 	def kindleall
-		@chaps.each { |chap| chap.kindle(@unamef, @passwordf, @kindlef) }
+		@chaps.each { |chap| kindle chap, @unamef, @passwordf, @kindlef }
 	end # Add any new chapter classes for parsing new webpages to the logic here #edit the control flow in here if you make custom classes
 end
 
-class Chapter
-	def initialize(url, name)
-		@doc = Nokogiri::HTML(open(url))
-		@name = name
-	end
-	def to_s
-		puts @doc.to_s
-	end
-	def doc
-		@doc
-	end
-	def name
-		@name
-	end
-	def title
-		@doc.css('h1').first.content
-	end
-	def author
-		"Unknown"
-	end
-	def text
-		@doc
-	end
-	def cleantitle
-		(self.name + "_" + self.title).gsub(/\u00A0/, ' ').gsub(/\u2013/, '-').gsub(' ','_').gsub(':','_')
-	end
-	def write
-		text = "<h1>" + self.name + "\n" + self.title + "</h1>\n"
-		text << "<i>" + Time.now.inspect + "</i>\n"
-		text << self.text.to_s
-		File.new('data/html/' + self.cleantitle + '.html', 'w').syswrite text
-	end
-	def convert
-		title = self.cleantitle
-		`ebook-convert "data/html/#{title}.html" "data/mobi/#{title}.mobi" --title "#{@name + ": " + self.title}"  --authors "#{self.author}"`
-	end
-	def kindle(unamef, passwordf, kindlef)
-		title = self.cleantitle
-		if File.exist?('data/mobi/' + title + '.mobi')
-			KindleEmail.new.send_file('data/mobi/' + title + '.mobi', unamef, passwordf, kindlef)
-		else
-			puts "nope"
-		end
-	end
-end
+# class Chapter
+# 	def initialize(url, name)
+# 		@doc = Nokogiri::HTML(open(url))
+# 		@name = name
+# 	end
+# 	def to_s
+# 		puts @doc.to_s
+# 	end
+# 	def doc
+# 		@doc
+# 	end
+# 	def name
+# 		@name
+# 	end
+# 	def title
+# 		@doc.css('h1').first.content
+# 	end
+# 	def author
+# 		"Unknown"
+# 	end
+# 	def text
+# 		@doc
+# 	end
+# 	def cleantitle
+# 		(self.name + "_" + self.title).gsub(/\u00A0/, ' ').gsub(/\u2013/, '-').gsub(' ','_').gsub(':','_')
+# 	end
+# 	def write
+# 		text = "<h1>" + self.name + "\n" + self.title + "</h1>\n"
+# 		text << "<i>" + Time.now.inspect + "</i>\n"
+# 		text << self.text.to_s
+# 		File.new('data/html/' + self.cleantitle + '.html', 'w').syswrite text
+# 	end
+# 	def convert
+# 		title = self.cleantitle
+# 		`ebook-convert "data/html/#{title}.html" "data/mobi/#{title}.mobi" --title "#{@name + ": " + self.title}"  --authors "#{self.author}"`
+# 	end
+# 	def kindle(unamef, passwordf, kindlef)
+# 		title = self.cleantitle
+# 		if File.exist?('data/mobi/' + title + '.mobi')
+# 			KindleEmail.new.send_file('data/mobi/' + title + '.mobi', unamef, passwordf, kindlef)
+# 		else
+# 			puts "nope"
+# 		end
+# 	end
+# end
 
-### Custom chapter handler classes
+# ### Custom chapter handler classes
 
-class PgteChapter < Chapter
-	def title
-		@doc.css('h1.entry-title').first.content
-	end
-	def text
-		@doc.css('div.entry-content').first.css('p')
-	end
-	def author
-		"ErraticErrata"
-	end
-end
+# class PgteChapter < Chapter
+# 	def title
+# 		@doc.css('h1.entry-title').first.content
+# 	end
+# 	def text
+# 		@doc.css('div.entry-content').first.css('p')
+# 	end
+# 	def author
+# 		"ErraticErrata"
+# 	end
+# end
 
-class WardChapter < Chapter
-	def title
-		@doc.css('h1.entry-title').first.content
-	end
+# class WardChapter < Chapter
+# 	def title
+# 		@doc.css('h1.entry-title').first.content
+# 	end
 
-	def text
-		text = @doc.css("div.entry-content").first
-		paras = text.css("p")
-		divs = text.css("div")
+# 	def text
+# 		text = @doc.css("div.entry-content").first
+# 		paras = text.css("p")
+# 		divs = text.css("div")
 
-		to_remove = []
-		paras.each do |l|
-			to_remove << l.to_s if l.content.gsub(/[^A-Za-z]/," ").squeeze == "Previous Chapter Next Chapter"
-		end
-		divs.each do |d|
-			to_remove << d.to_s if d["class"].include? "shar" or d["class"].include? "wpa" if d.keys.join(" ").include? "class"
-		end
-		stext = text.to_s
-		to_remove.each do |r|
-			stext = stext.gsub r, ""
-		end
-		return stext
-	end
+# 		to_remove = []
+# 		paras.each do |l|
+# 			to_remove << l.to_s if l.content.gsub(/[^A-Za-z]/," ").squeeze == "Previous Chapter Next Chapter"
+# 		end
+# 		divs.each do |d|
+# 			to_remove << d.to_s if d["class"].include? "shar" or d["class"].include? "wpa" if d.keys.join(" ").include? "class"
+# 		end
+# 		stext = text.to_s
+# 		to_remove.each do |r|
+# 			stext = stext.gsub r, ""
+# 		end
+# 		return stext
+# 	end
 
-	def author
-		"Wildbow"
-	end
-end
+# 	def author
+# 		"Wildbow"
+# 	end
+# end
 
-class RRChapter < Chapter
-	def title
-		@doc.css('h1').first.content
-	end
-	def text
-		chapter = @doc.css("div.chapter-inner.chapter-content").first
-		chapter_content = chapter.to_s
-		chapter.css("table").each { |table| chapter_content = chapter_content.gsub(table.to_s,table.css("p").to_s) }
-		Nokogiri::HTML(chapter_content)
-	end
-end
+# class RRChapter < Chapter
+# 	def title
+# 		@doc.css('h1').first.content
+# 	end
+# 	def text
+# 		chapter = @doc.css("div.chapter-inner.chapter-content").first
+# 		chapter_content = chapter.to_s
+# 		chapter.css("table").each { |table| chapter_content = chapter_content.gsub(table.to_s,table.css("p").to_s) }
+# 		Nokogiri::HTML(chapter_content)
+# 	end
+# end
 
 ###
 
