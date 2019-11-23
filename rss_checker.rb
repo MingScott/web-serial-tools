@@ -4,6 +4,7 @@ require "nokogiri"
 require "open-uri"
 require "csv"
 require "json"
+require "pp"
 require "pathname"
 require "fileutils"
 require "mail"
@@ -17,15 +18,15 @@ include SerialChapter
 @feed_data_path = 'conf/rss/feed_data.json'
 @uname_path = 'conf/rss/uname.txt'
 
-def write(chap)
-	text = "<h1>" + chap.name + "\n" + chap.title + "</h1>\n"
+def write(chap, sname)
+	text = "<h1>" + sname + ": " + chap.title + "</h1>\n"
 	text << "<i>" + Time.now.inspect + "</i>\n"
 	text << chap.text
 	File.new('data/html/' + chap.cleantitle + '.html', 'w').syswrite text
 end
-def convert(chap)
+def convert(chap, sname)
 	title = chap.cleantitle
-	`ebook-convert "data/html/#{title}.html" "data/mobi/#{title}.mobi" --title "#{@name + ": " + self.title}"  --authors "#{self.author}"`
+	`ebook-convert "data/html/#{title}.html" "data/mobi/#{title}.mobi" --title "#{sname + ": " + self.title}"  --authors "#{self.author}"`
 end
 def kindle(chap, unamef, passwordf, kindlef)
 	title = chap.cleantitle
@@ -64,20 +65,21 @@ class ChapterHandler
 		@passwordf = passwordf
 		@kindlef = kindlef
 		@chaps = Array.new
+		@names = names
 		if not urls.empty?
 			for ii in 0..urls.length-1
 				link = urls[ii]
 				sname = names[ii]
 				@chaps << classFinder(link).new link
-				if link.include?("practicalguidetoevil")
-					@chaps << PgteChapter.new(link, sname)
-				elsif link.include?("royalroad")
-					@chaps << RRChapter.new(link, sname)
-				elsif link.include?("parahumans")
-					@chaps << WardChapter.new(link, sname)
-				else
-					@chaps << Chapter.new(link, sname)
-				end
+				# if link.include?("practicalguidetoevil")
+				# 	@chaps << PgteChapter.new(link, sname)
+				# elsif link.include?("royalroad")
+				# 	@chaps << RRChapter.new(link, sname)
+				# elsif link.include?("parahumans")
+				# 	@chaps << WardChapter.new(link, sname)
+				# else
+				# 	@chaps << Chapter.new(link, sname)
+				# end
 			end
 
 		end
@@ -87,21 +89,20 @@ class ChapterHandler
 		@chaps.each {|chap| out << chap.title }
 		out
 	end
-	def names
-		out = Array.new
-		@chaps.each {|chap| out << chap.name }
-		out
-	end
 	def texts
 		out = Array.new
 		@chaps.each {|chap| out << chap.text }
 		out
 	end
 	def writeall
-		@chaps.each {|chap| write chap }
+		for ii in 0..@chaps.length-1 do
+			write @chaps[ii], @names[ii]
+		end
 	end
 	def convertall
-		@chaps.each { |chap| convert chap }
+		for ii in 0..@chaps.length-1 do
+			convert @chaps[ii], @names[ii]
+		end
 	end
 	def kindleall
 		@chaps.each { |chap| kindle chap, @unamef, @passwordf, @kindlef }
