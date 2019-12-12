@@ -1,0 +1,2 @@
+Fix string handling for serial scrape name field
+Convert the rss reader over to use the chapter library!
