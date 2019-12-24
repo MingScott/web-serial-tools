@@ -9,6 +9,9 @@ module SerialChapter
 			@doc = 		Nokogiri::HTML open url
 			@url = 		url
 		end
+		def to_s
+			puts @doc.to_s
+		end
 
 		def title ;		@doc.css("h1").first.content ; end
 		def text ; 		@doc.css("p").to_s; end
@@ -116,6 +119,85 @@ module SerialChapter
 			nc = self.linksearch "NEXT"
 			nc.gsub ".wordpress", "" if nc
 			nc
+		end
+	end
+
+	#Class chooser
+	def classFinder(url)
+		patterns = {
+			"royalroad" => 				RRChapter,
+			"wordpress" => 				WPChapter,
+			"parahumans" => 			WardChapter,
+			"practicalguidetoevil" => 	PGTEChapter,
+			"wanderinginn" =>			WanderingInn
+		}
+		@chapclass = ""
+		patterns.keys.each do |k|
+			@chapclass = if url.include? k
+				patterns[k]
+			else
+				@chapclass
+			end
+		end
+		if @chapclass == ""
+			@chapclass = Chapter
+		end
+		return @chapclass
+	end
+end
+
+module RssFeed
+	class Feed
+		def initialize(url)
+			@doc = Nokogiri::XML(open(url)).css("channel").first
+		end
+
+		def name
+			@doc.css("title").first.content
+		end
+
+		def item
+			@doc.css("item")
+		end
+
+		def titles
+			titles = Array.new
+			self.item.css("title").each { |title| titles << title.content }
+			titles
+		end
+
+		def urls
+			links = Array.new
+			self.item.css("link").each { |link| links << link.content }
+			links
+		end
+
+		def dates
+			dates = Array.new
+			self.item.css("pubDate").each { |date| dates << date.content }
+			dates
+		end
+
+		def to_a
+			namearr = Array.new
+			for ii in 0..self.titles.length-1
+				namearr[ii] = self.name
+			end
+			arr = [self.titles, self.urls, self.dates, namearr]
+			newarr = Array.new(self.titles.length) { Array.new(arr.length,0) }
+			for x in 0..newarr.length-1
+				for y in 0..arr.length-1
+					newarr[x][y] = arr[y][x]
+				end
+			end
+			newarr
+		end
+
+		def store(path)
+			File.open(path,"w") do |f|
+				f.write JSON.pretty_generate(self.to_a)
+				f.close
+			end
 		end
 	end
 end
