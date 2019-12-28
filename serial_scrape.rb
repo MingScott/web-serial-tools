@@ -41,28 +41,6 @@ OptionParser.new do |o|
 	end
 end.parse!
 
-def classFinder(url)
-	patterns = {
-		"royalroad" => 				RRChapter,
-		"wordpress" => 				WPChapter,
-		"parahumans" => 			WardChapter,
-		"practicalguidetoevil" => 	PGTEChapter,
-		"wanderinginn" =>			WanderingInn
-	}
-	@chapclass = ""
-	patterns.keys.each do |k|
-		@chapclass = if url.include? k
-			patterns[k]
-		else
-			@chapclass
-		end
-	end
-	if @chapclass == ""
-		@chapclass = Chapter
-	end
-	return @chapclass
-end
-
 class Book
 	def initialize(chap, title="Beginning", author="Unknown")
 		@next_url = chap.nextch

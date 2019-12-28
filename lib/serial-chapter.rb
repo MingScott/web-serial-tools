@@ -122,14 +122,28 @@ module SerialChapter
 		end
 	end
 
+	class A03Chapter < Chapter
+		def text
+			return @doc.css("div.module").to_s
+		end
+		def title
+			return @doc.css("h3.title").first.content.gsub(/.*[ ](?=C)/,"").gsub(/\n/,"")
+		end
+		def nextch;		self.linksearch "→"
+		end
+		def prevch;		self.linksearch "←" 
+		end
+	end
+
 	#Class chooser
 	def classFinder(url)
 		patterns = {
-			"royalroad" => 				RRChapter,
-			"wordpress" => 				WPChapter,
-			"parahumans" => 			WardChapter,
-			"practicalguidetoevil" => 	PGTEChapter,
-			"wanderinginn" =>			WanderingInn
+			"royalroad" 			=>	RRChapter,
+			"wordpress" 			=>	WPChapter,
+			"parahumans" 			=>	WardChapter,
+			"practicalguidetoevil"	=>	PGTEChapter,
+			"wanderinginn" 			=>	WanderingInn,
+			"archiveofourown"		=>	A03Chapter,
 		}
 		@chapclass = ""
 		patterns.keys.each do |k|
