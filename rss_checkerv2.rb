@@ -29,7 +29,7 @@ end.parse!
 def download_feeds(furlhash) #Hash of name=>feed url become hash of name=>feed
 	@feedhash = {}
 	begin
-		if @verbose then puts "Downloading feeds..."
+		if @verbose then puts "Downloading feeds..." end
 		furlhash.keys.each do |key|
 			@feedhash[key] = Feed.new(furlhash[key]).to_a_of_h
 		end
@@ -45,7 +45,7 @@ def resume_feeds
 end
 
 def save_feeds(fhash)
-	if @verbose then puts "Saving..."
+	if @verbose then puts "Saving..." end
 	File.open( @conf_path + @feed_data, "w") do |f|
 		f.write JSON.pretty_generate(fhash)
 		f.close
@@ -111,7 +111,7 @@ def main
 		@newchaps = []
 		@new_flist = download_feeds @feed_url_hash
 		@new_flist.keys.each do |feed|
-			if @verbose then puts "Checking #{feed}..."
+			if @verbose then puts "Checking #{feed}..." end
 			if @old_flist.include? feed
 				@delta = @new_flist[feed] - @old_flist[feed]
 				if not @delta.empty?
@@ -135,7 +135,7 @@ def main
 			end
 			send_file(@tempfile+@ext,@mail_conf)
 		end
-		if @verbose then puts "Sleeping at " + Time.now.inspect
+		if @verbose then puts "Sleeping at " + Time.now.inspect end
 		sleep @interval
 	end
 end
