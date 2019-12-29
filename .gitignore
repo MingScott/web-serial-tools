@@ -1,3 +1,4 @@
-/conf/rss/*.json
+/conf/rss/feed_data.json
+/conf/rss/rss*.json
 /conf/rss/*.txt
 /data/*

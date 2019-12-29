@@ -1,6 +1,7 @@
 #! /usr/bin/env ruby
 require 'nokogiri'
 require 'open-uri'
+require 'json'
 
 module SerialChapter
 	#Generic chapter reading class
@@ -192,7 +193,7 @@ module RssFeed
 			dates
 		end
 
-		def to_a
+		def to_a #This thing produces a rotated array where each entry in the feed is a spot on the array
 			namearr = Array.new
 			for ii in 0..self.titles.length-1
 				namearr[ii] = self.name
