@@ -1,5 +1,7 @@
 # web-serial-tools
 
+TODO: Update this, rss_checker is better now
+
 A collection of my WIP web serial reading tools, merged into a single repository. Merge in progress
 
 # serial-scrape-ruby
