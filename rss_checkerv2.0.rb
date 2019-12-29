@@ -4,6 +4,7 @@ include SerialChapter
 include RssFeed
 require "json"
 require "mail"
+require "optparse"
 
 @conf_path		= "conf/rss/"
 @feed_list		= "feeds.json"
@@ -13,13 +14,24 @@ require "mail"
 @interval		= if ARGV.empty? then 30 else ARGV[0].to_i end
 @feed_url_hash 	= JSON.parse File.read @conf_path + @feed_list
 @mail_conf 		= JSON.parse File.read @conf_path + @mail_conf_path
+@mobi			= false
+@verbose		= false
+
+OptionParser.new do |o|
+	o.on("-m") do
+		@mobi = true
+	end
+	o.on("-v") do
+		@verbose = true
+	end
+end.parse!
 
 def download_feeds(furlhash) #Hash of name=>feed url become hash of name=>feed
 	@feedhash = {}
 	begin
-		puts "Downloading feeds..."
+		if @verbose then puts "Downloading feeds..."
 		furlhash.keys.each do |key|
-			@feedhash[key] = Feed.new(furlhash[key]).to_a
+			@feedhash[key] = Feed.new(furlhash[key]).to_a_of_h
 		end
 	rescue
 		retry
@@ -33,7 +45,7 @@ def resume_feeds
 end
 
 def save_feeds(fhash)
-	puts "Saving..."
+	if @verbose then puts "Saving..."
 	File.open( @conf_path + @feed_data, "w") do |f|
 		f.write JSON.pretty_generate(fhash)
 		f.close
@@ -65,13 +77,41 @@ def send_file(fname, conf)
 	end
 end
 
+def populate_document(chaps)
+	#
+	@title = ""
+	@output = ""
+	chaps.each do |chaph|
+		puts "[#{chaph["name"]}: #{chaph["title"]}]\n\t#{chaph["date"]}"
+		@chap_class = classFinder chaph["url"]
+		begin
+			chap = @chap_class.new chaph["url"]
+		rescue
+			retry
+		end
+		@output << "<h1 class=\"chapter\">" + chaph["name"] + ": " + chaph["title"] + "</h1>\n"
+		@output << "<i>" + chaph["date"] + "</i>\n"
+		@output << chap.text + "\n"
+		@title << "[#{chaph["name"]}: #{chaph["title"]}]"
+	end
+	@output << "</body>\n</html>"
+	@top = "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"ISO-8859-1\">\n<title>#{@title}</title>\n<link rel=\"stylesheet\" href=\"style.css\">\n</head>\n<body>\n<!-- page content -->"
+	@output = "#{@top}#{@output}".gsub("\u2026","...")
+	@output = @output.encode! Encoding::ISO_8859_1
+	@title = @title.encode! Encoding::ISO_8859_1
+	return {
+		"text"	=> @output,
+		"title"		=> @title
+	}
+end
+
 def main
 	@old_flist = if File.exist?( @conf_path + @feed_data ) then resume_feeds else download_feeds @feed_url_hash end
 	while true
 		@newchaps = []
 		@new_flist = download_feeds @feed_url_hash
 		@new_flist.keys.each do |feed|
-			puts "Checking #{feed}..."
+			if @verbose then puts "Checking #{feed}..."
 			if @old_flist.include? feed
 				@delta = @new_flist[feed] - @old_flist[feed]
 				if not @delta.empty?
@@ -83,30 +123,19 @@ def main
 		@old_flist = @new_flist
 		if not @newchaps.empty?
 			puts "New chapters detected!"
-			@title = ""
-			@output = ""
-			@newchaps.each do |chap_array|
-				@url = chap_array[1]
-				@chap_class = classFinder @url
-				begin
-					chap = @chap_class.new @url
-				rescue
-					retry
-				end
-				@output << "<h1 class=\"chapter\">" + chap_array[3] + ": " + chap_array[0] + "</h1>\n"
-				@output << "<i>" + chap_array[2] + "</i>\n"
-				@output << chap.text + "\n"
-				@title << "[#{chap_array[3]}: #{chap_array[0]}]"
+			@doc = populate_document @newchaps
+			@tempfile = @tmp_dir + @doc["title"]
+			@ext = ".html"
+			File.open @tempfile+@ext, 'w' do |f|
+				f.puts @doc["text"]
 			end
-			temphtml = @tmp_dir + "temp-ebook.html"
-			tempmobi = @tmp_dir + "temp-ebook.mobi"
-			File.open temphtml, 'w' do |f|
-				f.puts @output
+			if @mobi
+				`ebook-convert #{@tempfile}.html #{@tempfile}.mobi --title '#{@title}' --max-toc-link 600`
+				@ext = ".mobi"
 			end
-			`ebook-convert #{temphtml} #{tempmobi} --title '#{@title}' --max-toc-link 600`
-			send_file(tempmobi,@mail_conf)
+			send_file(@tempfile+@ext,@mail_conf)
 		end
-		puts "Sleeping at " + Time.now.inspect
+		if @verbose then puts "Sleeping at " + Time.now.inspect
 		sleep @interval
 	end
 end

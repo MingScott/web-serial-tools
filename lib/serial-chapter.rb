@@ -208,6 +208,20 @@ module RssFeed
 			newarr
 		end
 
+		def to_a_of_h
+			@array = self.to_a
+			@aofh = []
+			@array.each do |a|
+				@aofh << {
+					"title"	=> a[0],
+					"url"	=> a[1],
+					"date"	=> a[2],
+					"name"	=> a[3]
+				}
+			end
+			return @aofh
+		end
+
 		def store(path)
 			File.open(path,"w") do |f|
 				f.write JSON.pretty_generate(self.to_a)
