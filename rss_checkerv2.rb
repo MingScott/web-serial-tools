@@ -9,7 +9,7 @@ require "optparse"
 @conf_path		= "conf/rss/"
 @feed_list		= "feeds.json"
 @mail_conf_path	= "rss_mail.json"
-@feed_data 		= "new_feed_data.json"
+@feed_data 		= "feed_data.json"
 @tmp_dir		= "data/"
 @mobi			= false
 @verbose		= false
