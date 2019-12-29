@@ -10,10 +10,7 @@ require "optparse"
 @feed_list		= "feeds.json"
 @mail_conf_path	= "rss_mail.json"
 @feed_data 		= "new_feed_data.json"
-@tmp_dir		= "/tmp/"
-@interval		= if ARGV.empty? then 30 else ARGV[0].to_i end
-@feed_url_hash 	= JSON.parse File.read @conf_path + @feed_list
-@mail_conf 		= JSON.parse File.read @conf_path + @mail_conf_path
+@tmp_dir		= "data/"
 @mobi			= false
 @verbose		= false
 
@@ -25,6 +22,11 @@ OptionParser.new do |o|
 		@verbose = true
 	end
 end.parse!
+
+@interval		= if ARGV.empty? then 30 else ARGV[0].to_i end
+@feed_url_hash 	= JSON.parse File.read @conf_path + @feed_list
+@mail_conf 		= JSON.parse File.read @conf_path + @mail_conf_path
+
 
 def download_feeds(furlhash) #Hash of name=>feed url become hash of name=>feed
 	@feedhash = {}
