@@ -10,7 +10,7 @@ require "mail"
 @mail_conf_path	= "rss_mail.json"
 @feed_data 		= "new_feed_data.json"
 @tmp_dir		= "/tmp/"
-@interval		= if ARGV.empty? then 30 else ARGV[0] end
+@interval		= if ARGV.empty? then 30 else ARGV[0].to_i end
 @feed_url_hash 	= JSON.parse File.read @conf_path + @feed_list
 @mail_conf 		= JSON.parse File.read @conf_path + @mail_conf_path
 
