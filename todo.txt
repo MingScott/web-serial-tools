@@ -1,3 +1,4 @@
 Fix string handling for serial scrape name field
 Convert the rss reader over to use the chapter library! DONE
 Create rss reader that works exclusively with html to remove reliance on calibre DONE
+Add author attributions
