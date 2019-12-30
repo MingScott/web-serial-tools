@@ -1,6 +1,10 @@
 # web-serial-tools
 
-A collection of my WIP web serial reading tools, merged into a single repository. Merge in progress
+TODO: Update this, rss_checker is better now
+
+A collection of my WIP web serial reading tools, merged into a single repository.
+
+rss_checkerv2.rb should work fine on android via Termux.
 
 # serial-scrape-ruby
 
