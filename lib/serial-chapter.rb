@@ -193,12 +193,20 @@ module RssFeed
 			dates
 		end
 
+		def creators
+			creators = Array.new
+			self.item.each do |i|
+				creators << "Unknown"
+			end
+			creators
+		end
+
 		def to_a #This thing produces a rotated array where each entry in the feed is a spot on the array
 			namearr = Array.new
 			for ii in 0..self.titles.length-1
 				namearr[ii] = self.name
 			end
-			arr = [self.titles, self.urls, self.dates, namearr]
+			arr = [self.titles, self.urls, self.dates, namearr, self.creators ]
 			newarr = Array.new(self.titles.length) { Array.new(arr.length,0) }
 			for x in 0..newarr.length-1
 				for y in 0..arr.length-1
@@ -213,10 +221,11 @@ module RssFeed
 			@aofh = []
 			@array.each do |a|
 				@aofh << {
-					"title"	=> a[0],
-					"url"	=> a[1],
-					"date"	=> a[2],
-					"name"	=> a[3]
+					"title"		=> a[0],
+					"url"		=> a[1],
+					"date"		=> a[2],
+					"name"		=> a[3],
+					"creators" 	=> a[4]
 				}
 			end
 			return @aofh
@@ -227,6 +236,14 @@ module RssFeed
 				f.write JSON.pretty_generate(self.to_a)
 				f.close
 			end
+		end
+
+		def to_s
+			@doc.to_s
+		end
+
+		def to_nokogiri
+			@doc
 		end
 	end
 end
