@@ -133,6 +133,7 @@ def main
 		save_feeds @new_flist
 		@old_flist = @new_flist
 		if not @newchaps.empty?
+			unless @verbose then print "\n" end
 			puts "New chapters detected!"
 			@doc = populate_document @newchaps
 			@tempfile = @tmp_dir + @doc["title"]
@@ -146,7 +147,7 @@ def main
 			end
 			send_file(@tempfile+@ext,@mail_conf)
 		end
-		if @verbose then puts "Sleeping at " + Time.now.inspect end
+		if @verbose then puts "Sleeping at " + Time.now.inspect else print "*" end
 		sleep @interval
 	end
 end
