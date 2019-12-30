@@ -7,25 +7,34 @@ require "mail"
 require "optparse"
 
 @conf_path		= "conf/rss/"
-@feed_list		= "feeds.json"
-@mail_conf_path	= "rss_mail.json"
-@feed_data 		= "feed_data.json"
-@tmp_dir		= "data/"
+@data_path		= "data/"
+@tmp_dir		= "tmp/"
+
+@feed_list		= "#{@conf_path}feeds.json"
+@mail_json	= if File.exist?("#{@conf_path}mail.json")
+		"#{@conf_path}mail.json"
+	else
+		"#{@conf_path}example_mail.json"
+		warn "WARNING: You probably need to configure conf/rss/mail.json"
+	end
+@feed_data 		= "#{@data_path}feed_data.json"
 @mobi			= false
 @verbose		= false
+@remove			= false
 
 OptionParser.new do |o|
 	o.on("-m") do
 		@mobi = true
 	end
-	o.on("-v") do
-		@verbose = true
+	o.on("-v") { @verbose = true }
+	o.on("-x") do
+		@remove = true
 	end
 end.parse!
 
 @interval		= if ARGV.empty? then 30 else ARGV[0].to_i end
-@feed_url_hash 	= JSON.parse File.read @conf_path + @feed_list
-@mail_conf 		= JSON.parse File.read @conf_path + @mail_conf_path
+@feed_url_hash 	= JSON.parse File.read @feed_list
+@mail_conf 		= JSON.parse File.read @mail_json
 
 
 def download_feeds(furlhash) #Hash of name=>feed url become hash of name=>feed
@@ -43,25 +52,25 @@ end
 
 def resume_feeds
 	puts "Loading feeds from file..."
-	JSON.parse File.read @conf_path + @feed_data
+	JSON.parse File.read @feed_data
 end
 
 def save_feeds(fhash)
 	if @verbose then puts "Saving..." end
-	File.open( @conf_path + @feed_data, "w") do |f|
+	File.open( @feed_data, "w") do |f|
 		f.write JSON.pretty_generate(fhash)
 		f.close
 	end
 end
 
-def send_file(fname, conf)
+def send_file(fname, conf) 
 	puts "Sending chapters..."
-	gmx_options = { :address              => "mail.gmx.com",
-            :port                 => 587,
-            :user_name            => conf["username"],
-            :password             => conf["password"],
-            :authentication       => 'plain',
-            :enable_starttls_auto => true  }
+	gmx_options = { :address 		=> "mail.gmx.com",
+            :port                 	=> 587,
+            :user_name            	=> conf["username"],
+            :password             	=> conf["password"],
+            :authentication       	=> 'plain',
+            :enable_starttls_auto 	=> true  }
 	Mail.defaults do
 		delivery_method :smtp, gmx_options
 	end
@@ -83,7 +92,7 @@ def populate_document(chaps)
 	#
 	@title = ""
 	@output = ""
-	chaps.each do |chaph|
+	chaps.each do |chaph| #loop through chapters and add them to the generated document
 		puts "[#{chaph["name"]}: #{chaph["title"]}]\n\t#{chaph["date"]}"
 		@chap_class = classFinder chaph["url"]
 		begin
@@ -117,7 +126,7 @@ def populate_document(chaps)
 end
 
 def main
-	@old_flist = if File.exist?( @conf_path + @feed_data ) then resume_feeds else download_feeds @feed_url_hash end
+	@old_flist = if File.exist?( @feed_data ) then resume_feeds else download_feeds @feed_url_hash end
 	while true
 		@newchaps = []
 		@new_flist = download_feeds @feed_url_hash
@@ -136,16 +145,18 @@ def main
 			unless @verbose then print "\n" end
 			puts "New chapters detected!"
 			@doc = populate_document @newchaps
-			@tempfile = @tmp_dir + @doc["title"]
-			@ext = ".html"
-			File.open @tempfile+@ext, 'w' do |f|
+			@docf = {
+				body: 	@tmp_dir + @doc["title"],
+				ext: 	".html"
+			}
+			File.open "#{@docf[:body]}#{@docf[:ext]}", 'w' do |f|
 				f.puts @doc["text"]
 			end
 			if @mobi
-				`ebook-convert #{@tempfile}.html #{@tempfile}.mobi --title '#{@title}' --max-toc-link 600`
-				@ext = ".mobi"
+				`ebook-convert #{@docf}.html #{@docf}.mobi --title '#{@title}' --max-toc-link 600`
+				@docf[:ext] = ".mobi"
 			end
-			send_file(@tempfile+@ext,@mail_conf)
+			send_file("#{@docf[:body]}#{@docf[:ext]}",@mail_conf)
 		end
 		if @verbose then puts "Sleeping at " + Time.now.inspect else print "*" end
 		sleep @interval
