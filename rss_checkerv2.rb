@@ -105,18 +105,20 @@ def populate_document(chaps)
 		@output << chap.text + "\n"
 		@title << "[#{chaph["name"]}: #{chaph["title"]}]"
 	end
-	@output << "</body>\n</html>"
 	@charset = if @mobi then "UTF-8" else "ISO-8859-1" end
-	@top = "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"#{@charset}\">\n<title>#{@title}</title>\n<link rel=\"stylesheet\" href=\"style.css\">\n</head>\n<body>\n<!-- page content -->"
+	#Bracket text with the html gravy
+	@top = "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n"				\
+			"<meta charset=\"#{@charset}\">\n"							\
+			"<title>#{@title}</title>\n"								\
+			"<link rel=\"stylesheet\" href=\"style.css\">\n"			\
+			"</head>\n<body>\n<!-- page content -->\n"
 	@output = "#{@top}#{@output}"
+	@output << "</body>\n</html>"
 	if not @mobi #encode text to play nice with kindle's html
 		[@output,@title].each do |text|
-			text.gsub!("\u2026","...")
-				.gsub!(/[\u2018\u2019]/,"\'")
-			    .encode!(
-			    	Encoding::ISO_8859_1,
-			    	invalid: :replace, undef: :replace
-			    	)
+			text.gsub!(	/\u2026/,			"..."	)
+				.gsub!(	/[\u2018\u2019]/,	"\'"	)
+			    .encode!( Encoding::ISO_8859_1,invalid: :replace, undef: :replace )
 		end
 	end
 	return {
