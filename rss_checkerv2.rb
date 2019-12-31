@@ -103,10 +103,10 @@ def populate_document(chaps)
 	@output = "#{@top}#{@output}"
 	@output << "</body>\n</html>"
 	if not @mobi #encode text to play nice with kindle's html
-		[@output,@title].each do |text|
+		[@output].each do |text|
 			text.gsub!(	/\u2026/,			"..."	)
 			text.gsub!(	/[\u2018\u2019]/,	"\'"	)
-		        text.encode!( Encoding::ISO_8859_1,invalid: :replace, undef: :replace )
+		    text.encode!( Encoding::ISO_8859_1,invalid: :replace, undef: :replace )
 		end
 	end
 	return {
