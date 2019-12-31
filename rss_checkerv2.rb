@@ -24,18 +24,25 @@ require "fileutils"
 @verbose		= false
 @remove			= false
 @single                 = false
+@quiet                  = false
+@dryrun                 = false
 
 OptionParser.new do |o|
 	o.on("-m") { @mobi = true }
 	o.on("-v") { @verbose = true }
 	o.on("-x") { @remove = true }
         o.on("-s") { @single = true }
+        o.on("-q") { @quiet = true }
+        o.on("-d") { @dryrun = true }
 end.parse!
+
+if @quiet then $stdout = StringIO.new end
 
 @interval		= if ARGV.empty? then 30 else ARGV[0].to_i end
 @feed_url_hash 	= JSON.parse File.read @feed_list
 @mail_conf 		= JSON.parse File.read @mail_json
 
+if @dryrun then @mail_conf["recipient"] = "devnull@nothing.com" end
 
 def download_feeds(furlhash) #Hash of name=>feed url become hash of name=>feed
 	@feedhash = {}
@@ -104,7 +111,7 @@ def populate_document(chaps)
 		@output << "<h1 class=\"chapter\">" + chaph["name"] + ": " + chaph["title"] + "</h1>\n"
 		@output << "<i>" + chaph["date"] + "</i>\n"
 		@output << chap.text + "\n"
-                @authorstring = if chaph[:creators].empty? then "" else " by #{chaph[:creator]}" end
+                @authorstring = if chaph["creators"].empty? then "" else " by #{chaph["creators"]}" end
 		@title << "[#{chaph["name"]}: #{chaph["title"]}#{@authorstring}]"
 	end
 	@charset = if @mobi then "UTF-8" else "ISO-8859-1" end
@@ -119,8 +126,8 @@ def populate_document(chaps)
 	if not @mobi #encode text to play nice with kindle's html
 		[@output,@title].each do |text|
 			text.gsub!(	/\u2026/,			"..."	)
-				.gsub!(	/[\u2018\u2019]/,	"\'"	)
-			    .encode!( Encoding::ISO_8859_1,invalid: :replace, undef: :replace )
+			text.gsub!(	/[\u2018\u2019]/,	"\'"	)
+		        text.encode!( Encoding::ISO_8859_1,invalid: :replace, undef: :replace )
 		end
 	end
 	return {
