@@ -1,7 +1,10 @@
 #!/usr/bin/env ruby
 require_relative "lib/serial-chapter"
 include SerialChapter
+require_relative "lib/rss-feed"
 include RssFeed
+require_relative "lib/kindle"
+include Kindle
 require "json"
 require "mail"
 require "optparse"
@@ -10,6 +13,7 @@ require "fileutils"
 @conf_path		= "conf/rss/"
 @data_path		= "data/"
 @tmp_dir		= "tmp/"
+# Setup directories
 [@conf_path, @data_path, @tmp_dir].each {|d| unless Dir.exist?(d) then FileUtils.mkdir_p d end }
 
 @feed_list		= "#{@conf_path}feeds.json"
@@ -17,23 +21,23 @@ require "fileutils"
 		"#{@conf_path}mail.json"
 	else
 		warn "WARNING: You probably need to configure conf/rss/mail.json"
-                "#{@conf_path}example_mail.json"
+        "#{@conf_path}example_mail.json"
 	end
 @feed_data 		= "#{@data_path}feed_data.json"
 @mobi			= false
 @verbose		= false
 @remove			= false
-@single                 = false
-@quiet                  = false
-@dryrun                 = false
+@single       	= false
+@quiet			= false
+@dryrun			= false
 
 OptionParser.new do |o|
-	o.on("-m") { @mobi = true }
-	o.on("-v") { @verbose = true }
-	o.on("-x") { @remove = true }
-        o.on("-s") { @single = true }
-        o.on("-q") { @quiet = true }
-        o.on("-d") { @dryrun = true }
+	o.on("-m") { @mobi = true } # mobi output (default html), requires calibre
+	o.on("-v") { @verbose = true } # tells you everything it's doing
+	o.on("-x") { @remove = true } # removes file from data dir when done with it
+    o.on("-s") { @single = true } # checks rss feeds once, then exits
+    o.on("-q") { @quiet = true } # suppresses all commandline output. Will still send mail
+    o.on("-d") { @dryrun = true } # throws emailed file into a black hole
 end.parse!
 
 if @quiet then $stdout = StringIO.new end
@@ -49,7 +53,7 @@ def download_feeds(furlhash) #Hash of name=>feed url become hash of name=>feed
 	begin
 		if @verbose then puts "Downloading feeds..." end
 		furlhash.keys.each do |key|
-			@feedhash[key] = Feed.new(furlhash[key]).to_a_of_h
+			@feedhash[key] = RssFeed::Feed.new(furlhash[key]).to_a_of_h
 		end
 	rescue
                 warn "Unable to download feeds"
@@ -71,38 +75,13 @@ def save_feeds(fhash)
 	end
 end
 
-def send_file(fname, conf) 
-	puts "Sending chapters..."
-	gmx_options = { :address 		=> "mail.gmx.com",
-            :port                 	=> 587,
-            :user_name            	=> conf["username"],
-            :password             	=> conf["password"],
-            :authentication       	=> 'plain',
-            :enable_starttls_auto 	=> true  }
-	Mail.defaults do
-		delivery_method :smtp, gmx_options
-	end
-	begin
-		Mail.deliver do
-		  to conf["recipient"]
-		  from conf["username"]
-		  subject ' '
-		  add_file fname
-		end
-	rescue
-		puts "Failed to send mail. Retrying..."
-		sleep 2
-		retry
-	end
-end
-
 def populate_document(chaps)
 	#
 	@title = ""
 	@output = ""
 	chaps.each do |chaph| #loop through chapters and add them to the generated document
 		puts "[#{chaph["name"]}: #{chaph["title"]}]\n\t#{chaph["date"]}"
-		@chap_class = classFinder chaph["url"]
+		@chap_class = SerialChapter::classFinder chaph["url"]
 		begin
 			chap = @chap_class.new chaph["url"]
 		rescue
@@ -167,7 +146,7 @@ def main
 				`ebook-convert #{@docf}.html #{@docf}.mobi --title '#{@title}' --max-toc-link 600`
 				@docf[:ext] = ".mobi"
 			end
-			send_file("#{@docf[:body]}#{@docf[:ext]}",@mail_conf)
+			Kindle::send_file("#{@docf[:body]}#{@docf[:ext]}",@mail_conf)
 		end
                 if @single then puts "Done!"; break end
 		if @verbose then puts "Sleeping at " + Time.now.inspect else print "*" end
