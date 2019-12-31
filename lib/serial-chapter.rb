@@ -195,8 +195,9 @@ module RssFeed
 
 		def creators
 			creators = Array.new
+                        if self.to_s.include?("dc:creator") then @c = true end
 			self.item.each do |i|
-				creators << "Unknown"
+                          creators << if @c then i.css("dc|creator").content else "Unknown" end
 			end
 			creators
 		end
