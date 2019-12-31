@@ -21,5 +21,5 @@ OptionParser.new do |o|
 end.parse!
 
 ARGV.each do |f|
-	Kindle::send_file f, conf
+	Kindle::send_file f, @mail_conf
 end
