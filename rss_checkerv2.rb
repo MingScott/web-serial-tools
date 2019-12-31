@@ -23,15 +23,13 @@ require "fileutils"
 @mobi			= false
 @verbose		= false
 @remove			= false
+@single                 = false
 
 OptionParser.new do |o|
-	o.on("-m") do
-		@mobi = true
-	end
+	o.on("-m") { @mobi = true }
 	o.on("-v") { @verbose = true }
-	o.on("-x") do
-		@remove = true
-	end
+	o.on("-x") { @remove = true }
+        o.on("-s") { @single = true }
 end.parse!
 
 @interval		= if ARGV.empty? then 30 else ARGV[0].to_i end
@@ -164,6 +162,7 @@ def main
 			end
 			send_file("#{@docf[:body]}#{@docf[:ext]}",@mail_conf)
 		end
+                if @single then puts "Done!"; break end
 		if @verbose then puts "Sleeping at " + Time.now.inspect else print "*" end
 		sleep @interval
 	end
