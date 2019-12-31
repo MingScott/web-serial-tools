@@ -1,10 +1,8 @@
 #! /usr/bin/env ruby
-require 'nokogiri'
-require 'open-uri'
-require 'json'
+require 'mail'
 
 module Kindle
-	def send_file(fname, conf, subj = '') #accepts hash with fields "username","password","recipient"
+	def send_file(fname, conf, subj = '') #accepts conf hash with fields "username","password","recipient"
 		puts "Sending chapters..."
 		gmx_options = { :address 		=> "mail.gmx.com",
 	            :port                 	=> 587,
