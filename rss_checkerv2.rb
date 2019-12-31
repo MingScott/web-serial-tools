@@ -5,17 +5,19 @@ include RssFeed
 require "json"
 require "mail"
 require "optparse"
+require "fileutils"
 
 @conf_path		= "conf/rss/"
 @data_path		= "data/"
 @tmp_dir		= "tmp/"
+[@conf_path, @data_path, @tmp_dir].each {|d| unless Dir.exist?(d) then FileUtils.mkdir_p d end }
 
 @feed_list		= "#{@conf_path}feeds.json"
 @mail_json	= if File.exist?("#{@conf_path}mail.json")
 		"#{@conf_path}mail.json"
 	else
-		"#{@conf_path}example_mail.json"
 		warn "WARNING: You probably need to configure conf/rss/mail.json"
+                "#{@conf_path}example_mail.json"
 	end
 @feed_data 		= "#{@data_path}feed_data.json"
 @mobi			= false
@@ -45,6 +47,7 @@ def download_feeds(furlhash) #Hash of name=>feed url become hash of name=>feed
 			@feedhash[key] = Feed.new(furlhash[key]).to_a_of_h
 		end
 	rescue
+                warn "Unable to download feeds"
 		retry
 	end
 	return @feedhash 
@@ -103,7 +106,8 @@ def populate_document(chaps)
 		@output << "<h1 class=\"chapter\">" + chaph["name"] + ": " + chaph["title"] + "</h1>\n"
 		@output << "<i>" + chaph["date"] + "</i>\n"
 		@output << chap.text + "\n"
-		@title << "[#{chaph["name"]}: #{chaph["title"]}]"
+                @authorstring = if chaph[:creators].empty? then "" else " by #{chaph[:creator]}" end
+		@title << "[#{chaph["name"]}: #{chaph["title"]}#{@authorstring}]"
 	end
 	@charset = if @mobi then "UTF-8" else "ISO-8859-1" end
 	#Bracket text with the html gravy
