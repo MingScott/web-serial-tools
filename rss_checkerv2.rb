@@ -10,7 +10,7 @@ require "mail"
 require "optparse"
 require "fileutils"
 
-@conf_path		= "conf/rss/"
+@conf_path		= "conf/"
 @data_path		= "data/"
 @tmp_dir		= "tmp/"
 # Setup directories

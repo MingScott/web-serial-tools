@@ -1,4 +1,4 @@
-/conf/rss/mail.json
+mail.json
 /data/*
 /tmp/*
 /*.swp
