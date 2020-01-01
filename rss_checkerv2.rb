@@ -30,6 +30,7 @@ require "fileutils"
 @single       	= false
 @quiet			= false
 @dryrun			= false
+@log                    = false
 
 OptionParser.new do |o|
 	o.on("-m") { @mobi = true } # mobi output (default html), requires calibre
@@ -38,9 +39,11 @@ OptionParser.new do |o|
     o.on("-s") { @single = true } # checks rss feeds once, then exits
     o.on("-q") { @quiet = true } # suppresses all commandline output. Will still send mail
     o.on("-d") { @dryrun = true } # throws emailed file into a black hole
+    o.on("-l") { @log = true }
 end.parse!
 
 if @quiet then $stdout = StringIO.new end
+if @log then $stdout = File.open(@data_path+"rss.log","a") end
 
 @interval		= if ARGV.empty? then 30 else ARGV[0].to_i end
 @feed_url_hash 	= JSON.parse File.read @feed_list
