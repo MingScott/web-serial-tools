@@ -1,9 +1,8 @@
 require 'nokogiri'
 require 'open-uri'
-require 'fileutils'
-include FileUtils
 require_relative 'lib/serial-chapter.rb'
 include SerialChapter
+require_relative 'lib/rss-feed'
 include RssFeed
 
 @title = ""

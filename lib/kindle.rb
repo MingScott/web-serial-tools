@@ -3,7 +3,7 @@ require 'mail'
 
 module Kindle
 	def send_file(fname, conf, subj = '') #accepts conf hash with fields "username","password","recipient"
-		puts "Sending chapters..."
+		puts "Sending file..."
 		gmx_options = { :address 		=> "mail.gmx.com",
 	            :port                 	=> 587,
 	            :user_name            	=> conf["username"],

@@ -96,7 +96,7 @@ def populate_document(chaps)
                 @authorstring = if chaph["creators"].empty? then "" else " by #{chaph["creators"]}" end
 		@title << "[#{chaph["name"]}: #{chaph["title"]}#{@authorstring}]"
 	end
-	@charset = if @mobi then "UTF-8" else "ISO-8859-1" end
+	@charset = "UTF-8"
 	#Bracket text with the html gravy
 	@top = "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n"				\
 			"<meta charset=\"#{@charset}\">\n"							\
@@ -106,15 +106,11 @@ def populate_document(chaps)
 	@output = "#{@top}#{@output}"
 	@output << "</body>\n</html>"
 	if not @mobi #encode text to play nice with kindle's html
-		[@output].each do |text|
-			text.gsub!(	/\u2026/,			"..."	)
-			text.gsub!(	/[\u2018\u2019]/,	"\'"	)
-		    text.encode!( Encoding::ISO_8859_1,invalid: :replace, undef: :replace )
-		end
+		@output = "\uFEFF#{@output}".encode("UTF-8")
 	end
 	return {
 		"text"	=> @output,
-		"title"		=> @title
+		"title"	=> @title
 	}
 end
 
