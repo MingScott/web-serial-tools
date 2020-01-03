@@ -92,6 +92,7 @@ def populate_document(chaps)
 	@title << if chaps.length == 1 then ": " else "s: " end
 	@toc = "<h1>Table of Contents</h1>"
 	@output = ""
+	@eachwork = []
 	ii = 1
 	chaps.reverse.each do |chaph| #loop through chapters and add them to the generated document
 		puts "[#{chaph["name"]}: #{chaph["title"]}] #{chaph["date"]}"
@@ -101,6 +102,7 @@ def populate_document(chaps)
 		rescue
 			retry
 		end
+		if @each
 		@chaptitle = chaph["name"] + ": " + chaph["title"]
 		@chapid = @chaptitle.downcase.gsub(/[^A-Za-z0-9]/,"")
 		@toc << "<a href=\"##{@chapid}\">#{@chaptitle}</a><br>\n"
@@ -120,20 +122,22 @@ def populate_document(chaps)
 		end
 		@title << "[#{chaph["name"]}: #{chaph["title"]}#{@authorstring}]"
 	end
+	@fullchapter = ""
 	@charset = "UTF-8"
 	#Bracket text with the html gravy
-	@top = "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n"				\
+	@fullchapter << "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n"				\
 			"<meta charset=\"#{@charset}\">\n"							\
 			"<title>#{@title}</title>\n"								\
 			"<link rel=\"stylesheet\" href=\"style.css\">\n"			\
 			"</head>\n<body>\n<!-- page content -->\n"
-	@output = "#{@top}#{@toc}#{@output}"
-	@output << "</body>\n</html>"
+	@fullchapter << @toc if chaps.length > 1
+	@fullchapter << @output
+	@fullchapter << "</body>\n</html>"
 	if not @mobi #encode text to play nice with kindle's html
-		@output = "\uFEFF#{@output}".encode("UTF-8")
+		@fullchapter = "\uFEFF#{@fullchapter}".encode("UTF-8")
 	end
 	return {
-		"text"	=> @output,
+		"text"	=> @fullchapter,
 		"title"	=> @title
 	}
 end
