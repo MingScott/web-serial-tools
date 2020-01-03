@@ -88,13 +88,13 @@ end
 
 def populate_document(chaps)
 	#
-	@title = "#{chaps.length} Chapter"
-	@title << if chaps.length == 1 then ": " else "s: " end
+	@title = ""
 	@toc = "<h1>Table of Contents</h1>"
 	@output = ""
 	@eachwork = []
-	ii = 1
+	@lastauthor = ""
 	chaps.reverse.each do |chaph| #loop through chapters and add them to the generated document
+		chaph["title"].gsub!("#{chaph["name"]} - ", "")
 		puts "[#{chaph["name"]}: #{chaph["title"]}] #{chaph["date"]}"
 		@chap_class = SerialChapter::classFinder chaph["url"]
 		begin
@@ -102,7 +102,6 @@ def populate_document(chaps)
 		rescue
 			retry
 		end
-		if @each
 		@chaptitle = chaph["name"] + ": " + chaph["title"]
 		@chapid = @chaptitle.downcase.gsub(/[^A-Za-z0-9]/,"")
 		@toc << "<a href=\"##{@chapid}\">#{@chaptitle}</a><br>\n"
@@ -120,7 +119,21 @@ def populate_document(chaps)
 		when {chap: false, feed: true}
 			" by #{chaph["creators"]}"
 		end
-		@title << "[#{chaph["name"]}: #{chaph["title"]}#{@authorstring}]"
+		@cname_file = ""
+		if @eachwork.include?(chaph["name"])
+			if chaph["name"].split(" ").length > 1
+				@cname_file = chaph["name"].split(" ").map{|w|w[0]}.join("").upcase
+			else
+				@cname_file = chaph["name"][0..3]
+			end
+		else
+			@eachwork << chaph["name"]
+			@cname_file = chaph["name"]
+		end
+		if @lastauthor == @authorstring then @authorstring = "" end
+		@title << "[#{@cname_file}: #{chaph["title"]}#{@authorstring}]"
+		@lastauthor = @authorstring unless @authorstring.empty?
+		puts @lastauthor
 	end
 	@fullchapter = ""
 	@charset = "UTF-8"
