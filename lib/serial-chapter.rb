@@ -17,6 +17,7 @@ module SerialChapter #todo: Implement author method
 		def title ;		@doc.css("h1").first.content ; end
 		def text ; 		@doc.css("p").to_s; end
 		def url ;		@url; end
+		def author ;	""; end
 
 		def linksearch(pattern)
 			find = false
@@ -49,6 +50,10 @@ module SerialChapter #todo: Implement author method
 			doc = @doc.css("div.chapter-inner.chapter-content").first.children
 			return "<div align=\"right\"><i>#{foreword.to_s}</i></div>\n#{doc.to_s}\n"
 		end 
+		def author
+			@doc.css("meta[name*=creator]").first["content"]
+		end
+
 	end
 
 	class WPChapter < Chapter #Wordpress
@@ -123,12 +128,15 @@ module SerialChapter #todo: Implement author method
 		end
 	end
 
-	class A03Chapter < Chapter
+	class AO3Chapter < Chapter
 		def text
 			return @doc.css("div.module").to_s
 		end
 		def title
 			return @doc.css("h3.title").first.content.gsub(/.*[ ](?=C)/,"").gsub(/\n/,"")
+		end
+		def author
+			return @doc.css("a[rel*=author]").last.content
 		end
 		def nextch;		self.linksearch "→"
 		end
@@ -144,7 +152,7 @@ module SerialChapter #todo: Implement author method
 			"parahumans" 			=>	WardChapter,
 			"practicalguidetoevil"	=>	PGTEChapter,
 			"wanderinginn" 			=>	WanderingInn,
-			"archiveofourown"		=>	A03Chapter,
+			"archiveofourown"		=>	AO3Chapter,
 		}
 		@chapclass = ""
 		patterns.keys.each do |k|
