@@ -89,7 +89,7 @@ end
 def populate_document(chaps)
 	#
 	@title = ""
-	@toc = "<h1>Table of Contents</h1>"
+	@toc = "<nav epub:type=\"toc\" id=\"toc\">\n<h1>Table of Contents</h1>\n<ol>\n"
 	@output = ""
 	@eachwork = []
 	@lastauthor = ""
@@ -104,7 +104,7 @@ def populate_document(chaps)
 		end
 		@chaptitle = chaph["name"] + ": " + chaph["title"]
 		@chapid = @chaptitle.downcase.gsub(/[^A-Za-z0-9]/,"")
-		@toc << "<a href=\"##{@chapid}\">#{@chaptitle}</a><br>\n"
+		@toc << "\t<li><a href=\"##{@chapid}\">#{@chaptitle}</a></li><br>\n"
 		@output << "<h1 class=\"chapter\" id=\"#{@chapid}\">#{@chaptitle}</h1>\n"
 		@output << "<i>" + chaph["date"] + "</i>\n"
 		@output << chap.text + "\n"
@@ -138,7 +138,8 @@ def populate_document(chaps)
 	@fullchapter = ""
 	@charset = "UTF-8"
 	#Bracket text with the html gravy
-	@fullchapter << "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n"				\
+	@toc << "</ol></nav><nav epub:type=\"landmarks\" class=\"hidden-tag\" hidden=\"hidden\"><ol><li><a epub:type=\"toc\" href=\"#toc\">Table of Contents</a></li></ol></nav>"
+	@fullchapter << "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n"		\
 			"<meta charset=\"#{@charset}\">\n"							\
 			"<title>#{@title}</title>\n"								\
 			"<link rel=\"stylesheet\" href=\"style.css\">\n"			\
