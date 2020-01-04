@@ -88,7 +88,7 @@ end
 
 def populate_document(chaps)
 	#
-	@title = ""
+	@title = "RSS: "
 	@toc = "<nav epub:type=\"toc\" id=\"toc\">\n<h1>Table of Contents</h1>\n<ol>\n"
 	@output = ""
 	@eachwork = []
