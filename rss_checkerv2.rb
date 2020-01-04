@@ -88,11 +88,11 @@ end
 
 def populate_document(chaps)
 	#
-	@title = "RSS: "
+	@title = "RSS"
 	@toc = "<nav epub:type=\"toc\" id=\"toc\">\n<h1>Table of Contents</h1>\n<ol>\n"
 	@output = ""
 	@eachwork = []
-	@lastauthor = ""
+	@authors = []
 	chaps.reverse.each do |chaph| #loop through chapters and add them to the generated document
 		chaph["title"].gsub!("#{chaph["name"]} - ", "")
 		puts "[#{chaph["name"]}: #{chaph["title"]}] #{chaph["date"]}"
@@ -102,47 +102,52 @@ def populate_document(chaps)
 		rescue
 			retry
 		end
-		@chaptitle = chaph["name"] + ": " + chaph["title"]
-		@chapid = @chaptitle.downcase.gsub(/[^A-Za-z0-9]/,"")
-		@toc << "\t<li><a href=\"##{@chapid}\">#{@chaptitle}</a></li><br>\n"
-		@output << "<h1 class=\"chapter\" id=\"#{@chapid}\">#{@chaptitle}</h1>\n"
-		@output << "<i>" + chaph["date"] + "</i>\n"
-		@output << chap.text + "\n"
-		@authorstring = case {
+
+		@author = case {
 			chap: !chap.author.empty?,
 			feed: !chaph["creators"].empty?
 		}
 		when {chap: false, feed: false}
 			""
 		when {chap: true, feed: false}, {chap: true, feed: true}
-			" by #{chap.author}"
+			"#{chap.author}"
 		when {chap: false, feed: true}
-			" by #{chaph["creators"]}"
+			"#{chaph["creators"]}"
 		end
+		@authorstring = if !@author.empty? then " by #{@author}" else "" end
+
+		@chaptitle = chaph["name"] + ": " + chaph["title"]
+		@chapid = @chaptitle.downcase.gsub(/[^A-Za-z0-9]/,"")
+		@toc << "\t<li><a href=\"##{@chapid}\">#{@chaptitle}</a></li><br>\n"
+		@output << "<h1 class=\"chapter\" id=\"#{@chapid}\">#{@chaptitle}</h1>\n"
+		@output << "<i>" + chaph["date"] + "</i><br>\n"
+		@output << "<i>#{@authorstring}</i><br>" unless @authorstring.empty?
+		@output << chap.text + "\n"
+		
 		@cname_file = ""
 		if @eachwork.include?(chaph["name"])
 			if chaph["name"].split(" ").length > 1
 				@cname_file = chaph["name"].split(" ").map{|w|w[0]}.join("").upcase
 			else
-				@cname_file = chaph["name"][0..3]
+				@cname_file = chaph["name"][0..2]
 			end
 		else
 			@eachwork << chaph["name"]
 			@cname_file = chaph["name"]
 		end
-		if @lastauthor == @authorstring then @authorstring = "" end
+		if @authors.last == @author then @authorstring = "" end
 		@title << "[#{@cname_file}: #{chaph["title"]}#{@authorstring}]"
-		@lastauthor = @authorstring unless @authorstring.empty?
-		puts @lastauthor
+		@authors << @author unless @authorstring.empty?
 	end
 	@fullchapter = ""
 	@charset = "UTF-8"
 	#Bracket text with the html gravy
 	@toc << "</ol></nav><nav epub:type=\"landmarks\" class=\"hidden-tag\" hidden=\"hidden\"><ol><li><a epub:type=\"toc\" href=\"#toc\">Table of Contents</a></li></ol></nav>"
-	@fullchapter << "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n"		\
-			"<meta charset=\"#{@charset}\">\n"							\
-			"<title>#{@title}</title>\n"								\
-			"<link rel=\"stylesheet\" href=\"style.css\">\n"			\
+	@fullchapter << "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n"			\
+			"<meta charset=\"#{@charset}\">\n"								\
+			"<meta name=\"author\" content=\"#{@authors.join(", ")}\">\n"	\
+			"<title>#{@title}</title>\n"									\
+			"<link rel=\"stylesheet\" href=\"style.css\">\n"				\
 			"</head>\n<body>\n<!-- page content -->\n"
 	@fullchapter << @toc if chaps.length > 1
 	@fullchapter << @output
