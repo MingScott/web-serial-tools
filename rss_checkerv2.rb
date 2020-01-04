@@ -68,6 +68,7 @@ def download_feeds(furlhash) #Hash of name=>feed url become hash of name=>feed
 		end
 	rescue
             warn "Unable to download feeds \t[#{Time.now.inspect}]"
+            sleep 10
 		retry
 	end
 	return @feedhash 
