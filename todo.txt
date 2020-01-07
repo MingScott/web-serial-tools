@@ -2,4 +2,5 @@ Fix string handling for serial scrape name field
 Convert the rss reader over to use the chapter library! DONE
 Create rss reader that works exclusively with html to remove reliance on calibre DONE
 Add author attributions DONE
-add author attribution for royalroad (parse chapter html for author? don't want to make new classes for different types of feeds)
+add author attribution for royalroad (parse chapter html for author? don't want to make new classes for different types of feeds) DONE
+add test for if chapter format has changed

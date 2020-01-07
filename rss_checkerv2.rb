@@ -166,7 +166,19 @@ def main
 	@old_flist = if File.exist?( @feed_data ) then resume_feeds else download_feeds @feed_url_hash end
 	while true
 		@newchaps = []
+                # puts "INITIAL NEWCHAPS DEBUG"
+                # puts JSON.pretty_generate @newchaps
+                # puts "INITIAL OLD FLIST DEBUG"
+                # puts JSON.pretty_generate @old_flist["Chrysalis"][0..1]
+
 		@new_flist = download_feeds @feed_url_hash
+
+                # puts "INITIAL NEW FLOST DEBUG"
+                # puts JSON.pretty_generate @new_flist["Chrysalis"][0..1]
+
+                # puts "CONPARISON TEST"
+                # @new_flist.keys.each { |f| puts JSON.pretty_generate(@new_flist[f] - @old_flist[f]) }
+
 		@new_flist.keys.each do |feed|
 			if @verbose then puts "Checking #{feed}...  \t[#{Time.now.inspect}]" end
 			if @old_flist.include? feed
@@ -177,8 +189,12 @@ def main
 				end
 			end
 		end
+                
 		save_feeds @new_flist
 		@old_flist = @new_flist
+                # puts "DEBUG NEWCHAPS"
+                # puts JSON.pretty_generate @newchaps
+                # puts "NEWCHAPS EMPTY: #{@newchaps.empty?}"
 		if not @newchaps.empty?
 			unless @verbose then print "\n" end
 			puts "New chapters detected!"
