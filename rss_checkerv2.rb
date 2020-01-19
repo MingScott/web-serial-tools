@@ -9,6 +9,7 @@ require "json"
 require "mail"
 require "optparse"
 require "fileutils"
+require "pdfkit"
 
 @conf_path		= "conf/"
 @data_path		= "data/"
@@ -26,7 +27,7 @@ require "fileutils"
 @feed_data 		= "#{@data_path}feed_data.json"
 @save_data		= @feed_data
 
-@mobi			= false
+@filetype		= "html"
 @verbose		= false
 @remove			= false
 @single       	= false
@@ -35,7 +36,18 @@ require "fileutils"
 @log 			= false
 
 OptionParser.new do |o|
-	o.on("-m") { @mobi = true } # mobi output (default html), requires calibre
+	o.on("-f", "--format FORMAT", "Specify html, pdf, or mobi (default html)") do |opt|
+		@filetype = case opt.downcase
+		when "html"
+			"html"
+		when "mobi"
+			"mobi"
+		when "pdf"
+			"pdf"
+		else
+			warn("Invalid filetype specifier!")
+		end
+	end
 	o.on("-v") { @verbose = true } # tells you everything it's doing
 	o.on("-x") { @remove = true } # removes file from data dir when done with it
     o.on("-s") { @single = true } # checks rss feeds once, then exits
@@ -153,9 +165,7 @@ def populate_document(chaps)
 	@fullchapter << @toc if chaps.length > 1
 	@fullchapter << @output
 	@fullchapter << "</body>\n</html>"
-	if not @mobi #encode text to play nice with kindle's html
-		@fullchapter = "\uFEFF#{@fullchapter}".encode("UTF-8")
-	end
+	@fullchapter = "\uFEFF#{@fullchapter}".encode("UTF-8")
 	return {
 		"text"	=> @fullchapter,
 		"title"	=> @title
@@ -206,16 +216,22 @@ def main
 			end
 			@docf = {
 				body: 	@tmp_dir + @fname,
-				ext: 	".html"
+				ext: 	".html",
+				subj:	""
 			}
 			File.open "#{@docf[:body]}#{@docf[:ext]}", 'w' do |f|
 				f.puts @doc["text"]
 			end
-			if @mobi
-				`ebook-convert #{@docf}.html #{@docf}.mobi --title '#{@title}' --max-toc-link 600`
+			if @filetype == "mobi"
+				`ebook-convert #{@docf[:body]}.html #{@docf[:body]}.mobi --title '#{@title}' --max-toc-link 600`
 				@docf[:ext] = ".mobi"
+			elsif @filetype == "pdf"
+				pdfObj = PDFkit.new File.new "#{@docf[:body]}.html"
+				pdfObj.to_file "#{@docf[:body]}.pdf"
+				@docf[:ext] = ".pdf"
+				@docf[:subj] = "Convert"
 			end
-			Kindle::send_file("#{@docf[:body]}#{@docf[:ext]}",@mail_conf)
+			Kindle::send_file("#{@docf[:body]}#{@docf[:ext]}",@mail_conf,@docf[:subj])
 		end
         if @single then puts "Done!"; break end
 		if @verbose then puts "Sleeping for #{@interval} seconds... \t[#{Time.now.inspect}]" else print "*" end
