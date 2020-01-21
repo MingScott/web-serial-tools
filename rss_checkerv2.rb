@@ -43,6 +43,7 @@ OptionParser.new do |o|
 		when "mobi"
 			"mobi"
 		when "pdf"
+			warn "NOT FUNCTIONAL YET"
 			"pdf"
 		else
 			warn("Invalid filetype specifier!")
@@ -57,11 +58,15 @@ OptionParser.new do |o|
 end.parse!
 
 if @quiet then $stdout = StringIO.new end
-if @log then $stderr = File.open(@data_path+"rss.log","a") end
+if @log
+	$stderr = File.open(@data_path+"rsserr.log","a")
+	$stdout = File.open(@data_path+"rssout.log","a")
+end
 
 @interval		= if ARGV.empty? then 30 else ARGV[0].to_i end
 @feed_url_hash 	= JSON.parse File.read @feed_list
 @mail_conf 		= JSON.parse File.read @mail_json
+#puts @mail_conf
 
 if @dryrun
 	warn "WARNING: Dryrun. Nothing will be updated or sent. Data will be loaded from dryrun_load_data.json if possible."
@@ -168,7 +173,8 @@ def populate_document(chaps)
 	@fullchapter = "\uFEFF#{@fullchapter}".encode("UTF-8")
 	return {
 		"text"	=> @fullchapter,
-		"title"	=> @title
+		"title"	=> @title,
+		"authors" => @authors.join(", ")
 	}
 end
 
@@ -223,7 +229,7 @@ def main
 				f.puts @doc["text"]
 			end
 			if @filetype == "mobi"
-				`ebook-convert #{@docf[:body]}.html #{@docf[:body]}.mobi --title '#{@title}' --max-toc-link 600`
+				system "ebook-convert '#{@docf[:body]}.html' '#{@docf[:body]}.mobi' --title '#{@doc["title"]}' --authors '#{@doc["authors"]}' --max-toc-link 600"
 				@docf[:ext] = ".mobi"
 			elsif @filetype == "pdf"
 				pdfObj = PDFkit.new File.new "#{@docf[:body]}.html"
@@ -231,6 +237,7 @@ def main
 				@docf[:ext] = ".pdf"
 				@docf[:subj] = "Convert"
 			end
+			#puts JSON.pretty_generate @docf
 			Kindle::send_file("#{@docf[:body]}#{@docf[:ext]}",@mail_conf,@docf[:subj])
 		end
         if @single then puts "Done!"; break end
