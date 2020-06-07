@@ -83,7 +83,7 @@ class Book
 			@fname + ".mobi"
 		end
 		puts @mobi
-		system "ebook-convert #{@fname} #{@mobi} --title \'#{@title}\' --authors \"#{@author}\" --max-toc-link 600"
+		system "ebook-convert #{@fname} #{@mobi} --title \"#{@title}\" --authors \"#{@author}\" --max-toc-link 600"
 	end
 
 	def html; @fname;
@@ -116,7 +116,7 @@ url = start
 ch1 = classFinder(url)
 ch1 = ch1.new url
 book = Book.new ch1, @book_title, author
-filename = @book_title.gsub(" ","_")
+filename = @book_title.gsub(/[' ]/,"_")
 book.write_to_file path + filename + ".html"
 book.convert_to_mobi
 publish book, email, password, kindle unless kindle.empty?
