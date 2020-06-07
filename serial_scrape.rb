@@ -76,12 +76,14 @@ class Book
 	end
 
 	def convert_to_mobi
+		puts @fname
 		@mobi = if @fname.include? "."
 			@fname.gsub @fname.split(".").last, "mobi"
 		else
 			@fname + ".mobi"
 		end
-		system "ebook-convert #{@fname} #{@mobi} --title #{@title} --authors \"#{@author}\" --max-toc-link 600"
+		puts @mobi
+		system "ebook-convert #{@fname} #{@mobi} --title \'#{@title}\' --authors \"#{@author}\" --max-toc-link 600"
 	end
 
 	def html; @fname;

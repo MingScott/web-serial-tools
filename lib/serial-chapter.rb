@@ -7,7 +7,7 @@ module SerialChapter #todo: Implement author method
 	#Generic chapter reading class
 	class Chapter
 		def initialize(url)
-			@doc = 		Nokogiri::HTML open url
+			@doc = 		Nokogiri::HTML URI.open url
 			@url = 		url
 		end
 		def to_s
