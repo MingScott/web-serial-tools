@@ -86,7 +86,7 @@ module SerialChapter #todo: Implement author method
 	class WardChapter < Chapter #Ward/other wildbow works
 		def text
 			t = @doc.css("div.entry-content").first.css("p")
-			return t[1..t.length-2].to_s
+			return t[0..t.length-1].to_s
 		end
 	end
 
