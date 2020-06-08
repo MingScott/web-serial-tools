@@ -229,7 +229,7 @@ def main
 				f.puts @doc["text"]
 			end
 			if @filetype == "mobi"
-				system "ebook-convert '#{@docf[:body]}.html' '#{@docf[:body]}.mobi' --title '#{@doc["title"]}' --authors '#{@doc["authors"]}' --max-toc-link 600"
+				system "ebook-convert '#{@docf[:body]}.html' '#{@docf[:body]}.mobi' --title \"#{@doc["title"]}\" --authors \"#{@doc["authors"]}\" --max-toc-link 600"
 				@docf[:ext] = ".mobi"
 			elsif @filetype == "pdf"
 				pdfObj = PDFkit.new File.new "#{@docf[:body]}.html"
