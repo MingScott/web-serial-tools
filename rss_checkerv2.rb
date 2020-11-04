@@ -201,7 +201,9 @@ def main
 				@delta = @new_flist[feed] - @old_flist[feed]
 				if not @delta.empty?
 					@delta.each {|i| @newchaps << i}
-					if @verbose then puts "New chapter in #{feed}...  \t[#{Time.now.inspect}]" end
+					if @verbose
+						puts "New chapter in #{feed}...  \t[#{Time.now.inspect}]"
+					end
 				end
 			end
 		end

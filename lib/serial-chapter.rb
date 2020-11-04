@@ -95,7 +95,9 @@ module SerialChapter #todo: Implement author method
 			return @doc.css("h1.entry-title").first.content
 		end
 		def text
-			return @doc.css("div.entry-content p, div.entry-content cite").to_s
+			@content = @doc.css("div.entry-content").to_s
+			@content.css("div.sharedaddy").remove
+			return @content
 		end
 		def linksearch(pattern)
 			find = false
