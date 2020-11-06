@@ -97,7 +97,7 @@ module SerialChapter #todo: Implement author method
 		def text
 			@content = @doc.css("div.entry-content").to_s
 			@content.css("div.sharedaddy").remove
-			return @content
+			return @content.to_s
 		end
 		def linksearch(pattern)
 			find = false
