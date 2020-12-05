@@ -95,7 +95,9 @@ module SerialChapter #todo: Implement author method
 			return @doc.css("h1.entry-title").first.content
 		end
 		def text
-			return @doc.css("div.entry-content p").to_s
+			@content = @doc.css("div.entry-content")
+			@content.css("div.sharedaddy").remove
+			return @content.to_s
 		end
 		def linksearch(pattern)
 			find = false
@@ -144,6 +146,25 @@ module SerialChapter #todo: Implement author method
 		end
 	end
 
+	class ZombieKnightPage < Chapter
+		def text
+			return @doc.css("div.entry-content").to_s.gsub("font-family: courier", "font-family: sans-serif")
+		end
+		def title
+			return @doc.css("h3.title").first.content
+		end
+		def author
+			return @doc.css("a[title=\"author profile\"] span").first.content
+		end
+		def nextch
+			return @doc.css("a.blog-pager-newer-link").first["href"]
+		end
+		def prevch
+			return @doc.css("a.blog-pager-older-link").first["href"]
+		end
+	end
+
+
 	#Class chooser
 	def classFinder(url)
 		patterns = {
@@ -153,6 +174,7 @@ module SerialChapter #todo: Implement author method
 			"practicalguidetoevil"	=>	PGTEChapter,
 			"wanderinginn" 			=>	WanderingInn,
 			"archiveofourown"		=>	AO3Chapter,
+			"thezombieknight"		=>	ZombieKnightPage
 		}
 		@chapclass = ""
 		patterns.keys.each do |k|
