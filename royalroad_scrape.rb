@@ -14,7 +14,7 @@ author = ""
 kindle = ""
 email = ""
 password = ""
-path = "data/"
+path = "tmp/"
 OptionParser.new do |o|
 	o.banner = ""
 	o.on("-t", "--to EMAIL", "email address to send to") do |k|
