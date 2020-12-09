@@ -40,15 +40,30 @@ module SerialChapter #todo: Implement author method
 		end
 		def prevch;		self.linksearch "PREV" 
 		end
+		def cf_decode(doc) #cloudflare email obfuscation decoding
+			doc.search("span.__cf_email__").each do |x|
+				enc = [x["data-cfemail"]].pack("H*").bytes.to_a
+				data = enc[1..enc.length]
+				x.content = data.map{ |byte| (byte ^ enc[0]).chr}.join
+			end
+		end
 	end 
 
 	#Custom chapter reading classes
 	###############
 	class RRChapter < Chapter #Royalroad
 		def text
-			foreword = @doc.css "div.author-note"
-			doc = @doc.css("div.chapter-inner.chapter-content").first.children
-			return "<div align=\"right\"><i>#{foreword.to_s}</i></div>\n#{doc.to_s}\n"
+			doc = @doc.css("div.chapter div.portlet-body")
+			doc.xpath("./*").each do |n| #remove everything except the authors notes and the chapter
+				if n.to_h.has_key? "class"
+					classes = n["class"].split(" ")
+					n.remove if (classes & ["author-note-portlet", "chapter-content"]).empty? #detects author note and chapter content with element-wise AND
+				else
+					n.remove if ([n.name] & ["p","div"]).empty?
+				end
+			end
+			cf_decode(doc) 
+			return doc.to_s
 		end 
 		def author
 			@doc.css("meta[name*=creator]").first["content"]
