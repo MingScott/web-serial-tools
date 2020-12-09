@@ -57,13 +57,19 @@ module SerialChapter #todo: Implement author method
 			doc.xpath("./*").each do |n| #remove everything except the authors notes and the chapter
 				if n.to_h.has_key? "class"
 					classes = n["class"].split(" ")
-					n.remove if (classes & ["author-note-portlet", "chapter-content"]).empty? #detects author note and chapter content with element-wise AND
+					if (classes & ["author-note-portlet", "chapter-content"]).empty? #detects author note and chapter content with element-wise AND
+						n.remove
+					end
+					if n["class"].include? "author-note-portlet"
+						n["style"] = "font-family: courier; color: gray;"
+					end
 				else
 					n.remove if ([n.name] & ["p","div"]).empty?
 				end
 			end
-			cf_decode(doc) 
-			return doc.to_s
+			doc.css("portlet")
+			cf_decode(doc)
+			return doc.first.to_s
 		end 
 		def author
 			@doc.css("meta[name*=creator]").first["content"]
