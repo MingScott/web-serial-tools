@@ -78,18 +78,27 @@ end
 
 def download_feeds(furlhash) #Hash of name=>feed url become hash of name=>feed
 	@feedhash = {}
+	if File.exist? @feed_data
+		@oldfeedhash = JSON.parse File.read @feed_data
+	end
 	begin
 		if @verbose then puts "Downloading feeds... \t[#{Time.now.inspect}]" end
 		furlhash.keys.each do |key|
-			if @verbose then puts key end
-			@feedhash[key] = RssFeed::Feed.new(furlhash[key]).to_a_of_h
+			if @verbose then puts "Checking " + key end
+			begin
+				@feedhash[key] = RssFeed::Feed.new(furlhash[key]).to_a_of_h
+			rescue OpenURI::HTTPError => feed_error
+				if feed_error.io.status[0] == "304"
+					@feedhash[key] = @oldfeedhash[key]
+				else
+					raise "Uncaught HTTPError"
+				end
+			end
 		end
 	rescue
         warn "Unable to download feeds \t[#{Time.now.inspect}]"
         sleep 10
-        unless @single
-			retry
-		end
+        retry
 	end
 	return @feedhash 
 end
