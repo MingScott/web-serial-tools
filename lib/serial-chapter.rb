@@ -106,7 +106,9 @@ module SerialChapter #todo: Implement author method
 					link.remove
 				end
 			end
-			content.search("#SCRAPED_IMAGE_NUMBER_1_#{self.title.gsub('"',"")}").remove
+			unless ([content.search("p").first.content] & ["Avery","Verona","Lucy"]).empty?
+				content.search("#SCRAPED_IMAGE_NUMBER_1_#{self.title.gsub('"',"")}").remove
+			end
 			return content.to_s
 		end
 		def title
