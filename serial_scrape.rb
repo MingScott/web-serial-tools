@@ -16,6 +16,7 @@ email = ""
 password = ""
 path = "tmp/"
 wait = 0
+useragent = "ruby"
 OptionParser.new do |o|
 	o.banner = ""
 	o.on("-n", "--name NAME", "Provide book name") do |serial|
@@ -43,10 +44,13 @@ OptionParser.new do |o|
 	o.on("-w","--wait SECONDS", "Number of seconds to wait between each access while scraping") do |w|
 		wait = w.to_i
 	end
+	o.on("-u","--user-agent STRING", "User-agent string to use while scraping") do |u|
+		useragent = u
+	end
 end.parse!
 
 class Book
-	def initialize(chap, title="Beginning", author="Unknown", wait)
+	def initialize(chap, title="Beginning", author="Unknown", wait, useragent)
 		@next_url = chap.nextch
 		@title = title
 		@author = author
@@ -64,7 +68,7 @@ class Book
 			if @next_url
 				sleep wait #how long to wait before trying next url
 				begin
-					@chap = @chap.class.new @next_url
+					@chap = @chap.class.new @next_url, useragent
 				rescue OpenURI::HTTPError => httperror
 					if httperror.io.status[0] == "429"
 						warn("429 Too Many Requests Error: Scraping choked, 1 min cooldown before retry")
@@ -129,8 +133,8 @@ end
 
 url = start
 ch1 = classFinder(url)
-ch1 = ch1.new url
-book = Book.new ch1, @book_title, author, wait
+ch1 = ch1.new url, useragent
+book = Book.new ch1, @book_title, author, wait, useragent
 filename = @book_title.gsub(/[' ]/,"_")
 book.write_to_file path + filename + ".html"
 book.convert_to_mobi

@@ -6,11 +6,15 @@ require 'json'
 module SerialChapter #todo: Implement author method
 	#Generic chapter reading class
 	class Chapter
-		def initialize(url)
-			@doc = 		Nokogiri::HTML URI.open url
+		def initialize(url, useragent="ruby")
+			@doc = 		Nokogiri::HTML URI.open(url, {'User-Agent' => useragent})
 			@url = 		url
 			img_sub_link(@doc)
+			custom_init
 		end
+		def custom_init
+		end
+
 		def to_s
 			puts @doc.to_s
 		end
@@ -193,13 +197,11 @@ module SerialChapter #todo: Implement author method
 	end
 
 	class SVChapter < Chapter
-		def initialize(url)
-			@doc = 		Nokogiri::HTML URI.open url
-			@url = 		url
+		def custom_init
 			postid = @url.split("/").last
 			@doc = @doc.search("article.message.hasThreadmark[data-content=#{postid}]")
-			img_sub_link(@doc)
 		end
+
 
 		def title
 			@doc.search("span.threadmarkLabel").first.content
