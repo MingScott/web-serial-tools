@@ -66,7 +66,7 @@ class Book
 				begin
 					@chap = @chap.class.new @next_url
 				rescue OpenURI::HTTPError => httperror
-					if httperror.io.status[0] == 429
+					if httperror.io.status[0] == "429"
 						warn("429 Too Many Requests Error: Scraping choked, 1 min cooldown before retry")
 						sleep 60
 						retry
