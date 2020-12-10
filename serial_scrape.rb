@@ -50,7 +50,7 @@ OptionParser.new do |o|
 end.parse!
 
 class Book
-	def initialize(chap, title="Beginning", author="Unknown", wait, useragent)
+	def initialize(chap, title="Beginning", author="Unknown", wait, useragent, tenacious=false)
 		@next_url = chap.nextch
 		@title = title
 		@author = author
@@ -66,13 +66,17 @@ class Book
 			@toc  << "<a href=\"#chapter#{@ind}\">#{@chap.title}</a><br>\n"
 			@ind  += 1
 			if @next_url
-				sleep wait #how long to wait before trying next url
 				begin
+					sleep wait #how long to wait before trying next url
 					@chap = @chap.class.new @next_url, useragent
 				rescue OpenURI::HTTPError => httperror
 					if httperror.io.status[0] == "429"
 						warn("429 Too Many Requests Error: Scraping choked, 1 min cooldown before retry")
 						sleep 60
+						retry
+					elsif true
+						warn httperror
+						sleep 10 #TODO - add optionality to this
 						retry
 					else
 						raise httperror
