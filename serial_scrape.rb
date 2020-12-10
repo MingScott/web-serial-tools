@@ -46,7 +46,7 @@ OptionParser.new do |o|
 end.parse!
 
 class Book
-	def initialize(chap, title="Beginning", author="Unknown")
+	def initialize(chap, title="Beginning", author="Unknown", wait)
 		@next_url = chap.nextch
 		@title = title
 		@author = author
@@ -120,7 +120,7 @@ end
 url = start
 ch1 = classFinder(url)
 ch1 = ch1.new url
-book = Book.new ch1, @book_title, author
+book = Book.new ch1, @book_title, author, wait
 filename = @book_title.gsub(/[' ]/,"_")
 book.write_to_file path + filename + ".html"
 book.convert_to_mobi
