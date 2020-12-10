@@ -74,10 +74,9 @@ module SerialChapter #todo: Implement author method
 		def author
 			@doc.css("meta[name*=creator]").first["content"]
 		end
-
 	end
 
-	class PaleChapter
+	class PaleChapter < Chapter
 		def text
 			content = @rawdoc.search("div.entry-content").first
 			content.search("div.sharedaddy").remove
@@ -134,19 +133,6 @@ module SerialChapter #todo: Implement author method
 		end
 	end
 
-	class WanderingInn < WPChapter #The Wandering Inn
-		def initialize(url)
-			url = url.gsub ".wordpress", ""
-			@doc = 		Nokogiri::HTML open url
-			@url = 		url
-		end
-		def nextch
-			nc = self.linksearch "NEXT"
-			nc.gsub ".wordpress", "" if nc
-			nc
-		end
-	end
-
 	class AO3Chapter < Chapter
 		def text
 			return @doc.css("div.module").to_s
@@ -196,7 +182,6 @@ module SerialChapter #todo: Implement author method
 			"royalroad" 			=>	RRChapter,
 			"parahumans" 			=>	WardChapter,
 			"practicalguidetoevil"	=>	PGTEChapter,
-			"wanderinginn" 			=>	WanderingInn,
 			"archiveofourown"		=>	AO3Chapter,
 			"thezombieknight"		=>	ZombieKnightPage,
 			"palewebserial"			=>	PaleChapter
