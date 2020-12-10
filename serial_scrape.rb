@@ -16,7 +16,7 @@ email = ""
 password = ""
 path = "tmp/"
 wait = 0
-useragent = "ruby"
+useragent = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:83.0) Gecko/20100101 Firefox/83.0"
 OptionParser.new do |o|
 	o.banner = ""
 	o.on("-n", "--name NAME", "Provide book name") do |serial|
