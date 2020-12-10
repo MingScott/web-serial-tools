@@ -15,6 +15,7 @@ kindle = ""
 email = ""
 password = ""
 path = "tmp/"
+wait = 0
 OptionParser.new do |o|
 	o.banner = ""
 	o.on("-n", "--name NAME", "Provide book name") do |serial|
@@ -39,6 +40,9 @@ OptionParser.new do |o|
 		path = d
 		path = path + '/' unless path[-1] == '/' || path.empty?
 	end
+	o.on("-w","--wait SECONDS", "Number of seconds to wait between each access while scraping") do |w|
+		wait = w.to_i
+	end
 end.parse!
 
 class Book
@@ -58,6 +62,7 @@ class Book
 			@toc  << "<a href=\"#chapter#{@ind}\">#{@chap.title}</a><br>\n"
 			@ind  += 1
 			if @next_url
+				sleep wait #how long to wait before trying next url
 				@chap = @chap.class.new @next_url
 			end
 		end
