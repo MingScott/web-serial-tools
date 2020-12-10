@@ -6,7 +6,7 @@ require 'json'
 module RssFeed
 	class Feed
 		def initialize(url)
-			@doc = Nokogiri::XML(open(url)).css("channel").first
+			@doc = Nokogiri::XML(URI.open(url)).css("channel").first
 		end
 
 		def name
