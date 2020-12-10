@@ -155,6 +155,7 @@ def populate_document(chaps)
 		@toc << "\t<li><a href=\"##{@chapid}\">#{@chaptitle}</a></li><br>\n"
 		@output << "<h1 class=\"chapter\" id=\"#{@chapid}\">#{@chaptitle}</h1>\n"
 		@output << "<i>" + chaph["date"] + "</i><br>\n"
+		@output << "<a href=\"#{chaph["url"]}\">Webpage</a>"
 		@output << "<i>#{@authorstring}</i><br>" unless @authorstring.empty?
 		@output << chap.text + "\n"
 		
