@@ -224,11 +224,9 @@ module SerialChapter #todo: Implement author method
 		end
 
 		def nextch
-			sleep 5
 			threadmark_nav("a.threadmark-control--next")
 		end
 		def prevch
-			sleep 5
 			threadmark_nav("a.threadmark-control--previous")
 		end
 
