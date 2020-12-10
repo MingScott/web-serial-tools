@@ -81,6 +81,10 @@ class Book
 					else
 						raise httperror
 					end
+				rescue => neterror
+					warn httperror
+					sleep 10 #TODO - add optionality to this
+					retry
 				end
 			end
 		end
