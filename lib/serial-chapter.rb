@@ -77,30 +77,26 @@ module SerialChapter #todo: Implement author method
 
 	end
 
-	class WPChapter < Chapter #Wordpress
+	class PaleChapter
 		def text
-			text = @doc.css("div.entry-content").first
-			links = text.css("a")
-			divs = text.css("div")
-
-			to_remove = []
-			links.each do |l|
-				to_remove << l.to_s if l.content.upcase.include? "NEXT" or l.content.upcase.include? "PREV"
+			content = @rawdoc.search("div.entry-content").first
+			content.search("div.sharedaddy").remove
+			content.search("img").remove
+			content.search("a, p").each do |link|
+				unless ([link.content] & ["Previous Chapter", "Next Chapter"]).empty?
+					link.remove
+				end
 			end
-			divs.each do |d|
-				to_remove << d.to_s if d["class"].include? "shar" or d["class"].include? "wpa" if d.keys.join(" ").include? "class"
-			end
-			stext = text.to_s
-			to_remove.each do |r|
-				stext = stext.gsub r, ""
-			end
-			return stext
+			return content.to_s
 		end
-                def nextch
-                  return self.linksearch("NEXT CHAPTER")
-                end
 		def title
 			@doc.css("h1.entry-title").first.content
+		end
+		def nextch
+			return self.linksearch("NEXT CHAPTER")
+		end
+		def prevch
+			return self.linksearch("PREVIOUS CHAPTER")
 		end
 	end
 
@@ -198,12 +194,12 @@ module SerialChapter #todo: Implement author method
 	def classFinder(url)
 		patterns = {
 			"royalroad" 			=>	RRChapter,
-			"wordpress" 			=>	WPChapter,
 			"parahumans" 			=>	WardChapter,
 			"practicalguidetoevil"	=>	PGTEChapter,
 			"wanderinginn" 			=>	WanderingInn,
 			"archiveofourown"		=>	AO3Chapter,
-			"thezombieknight"		=>	ZombieKnightPage
+			"thezombieknight"		=>	ZombieKnightPage,
+			"palewebserial"			=>	PaleChapter
 		}
 		@chapclass = ""
 		patterns.keys.each do |k|
