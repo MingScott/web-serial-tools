@@ -50,7 +50,7 @@ OptionParser.new do |o|
 end.parse!
 
 class Book
-	def initialize(chap, title="Beginning", author="Unknown", wait, useragent, tenacious=false)
+	def initialize(chap, title="Beginning", author="Unknown", wait, useragent)
 		@next_url = chap.nextch
 		@title = title
 		@author = author
