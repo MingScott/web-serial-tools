@@ -81,12 +81,15 @@ def download_feeds(furlhash) #Hash of name=>feed url become hash of name=>feed
 	begin
 		if @verbose then puts "Downloading feeds... \t[#{Time.now.inspect}]" end
 		furlhash.keys.each do |key|
+			if @verbose then puts key end
 			@feedhash[key] = RssFeed::Feed.new(furlhash[key]).to_a_of_h
 		end
 	rescue
-            warn "Unable to download feeds \t[#{Time.now.inspect}]"
-            sleep 10
-		retry
+        warn "Unable to download feeds \t[#{Time.now.inspect}]"
+        sleep 10
+        unless @single
+			retry
+		end
 	end
 	return @feedhash 
 end
