@@ -49,12 +49,12 @@ OptionParser.new do |o|
 			warn("Invalid filetype specifier!")
 		end
 	end
-	o.on("-v") { @verbose = true } # tells you everything it's doing
-	o.on("-x") { @remove = true } # removes file from data dir when done with it
-    o.on("-s") { @single = true } # checks rss feeds once, then exits
-    o.on("-q") { @quiet = true } # suppresses all commandline output. Will still send mail
-    o.on("-d") { @dryrun = true } # throws emailed file into a black hole
-    o.on("-l") { @log = true }
+	o.on("-v", "verbose") { @verbose = true } # tells you everything it's doing
+	o.on("-x", "clean up when done") { @remove = true } # removes file from data dir when done with it
+    o.on("-s", "single") { @single = true } # checks rss feeds once, then exits
+    o.on("-q", "quiet") { @quiet = true } # suppresses all commandline output. Will still send mail
+    o.on("-d", "dryrun email") { @dryrun = true } # throws emailed file into a black hole
+    o.on("-l", "log to file") { @log = true }
 end.parse!
 
 if @quiet then $stdout = StringIO.new end
