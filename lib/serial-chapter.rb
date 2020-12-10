@@ -209,19 +209,27 @@ module SerialChapter #todo: Implement author method
 			return @doc.first["data-author"]
 		end
 
-		def nextch
-				begin
-					return @doc.css("a.threadmark-control--next").first["href"]
-				rescue
-					return false
-				end
-			end
-		def prevch
+		def threadmark_nav(css_selector)
+			find = ""
 			begin
-				return @doc.css("a.threadmark-control--previous").first["href"]
+				find = @doc.css(css_selector).first["href"]
 			rescue
 				return false
 			end
+			unless find[0..3] == "http"
+				domain_index = @url.index("/",8)
+				find = @url[0..domain_index-1] + find
+			end
+			return find.gsub(/page-.*#/,"")
+		end
+
+		def nextch
+			sleep 5
+			threadmark_nav("a.threadmark-control--next")
+		end
+		def prevch
+			sleep 5
+			threadmark_nav("a.threadmark-control--previous")
 		end
 
 		def text
