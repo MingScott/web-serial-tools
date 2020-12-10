@@ -14,7 +14,7 @@ author = ""
 kindle = ""
 email = ""
 password = ""
-path = "data/"
+path = "tmp/"
 OptionParser.new do |o|
 	o.banner = ""
 	o.on("-n", "--name NAME", "Provide book name") do |serial|

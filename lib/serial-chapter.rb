@@ -9,6 +9,7 @@ module SerialChapter #todo: Implement author method
 		def initialize(url)
 			@doc = 		Nokogiri::HTML URI.open url
 			@url = 		url
+			img_sub_link(@doc)
 		end
 		def to_s
 			puts @doc.to_s
@@ -47,6 +48,22 @@ module SerialChapter #todo: Implement author method
 				x.content = data.map{ |byte| (byte ^ enc[0]).chr}.join
 			end
 		end
+
+		def img_sub_link(doc)
+			count = 1
+			doc.search("img").each do |img|
+				link = img["src"]
+				title = "IMAGE"
+				if img.to_h.has_key?("title")
+					title = img["title"]
+				end
+				anchor = img.add_next_sibling("<a href=\"#{link}\">#{title}</a>")
+				anchor.append_class(img.classes.join(" "))
+				anchor.first["id"] = "SCRAPED_IMAGE_NUMBER_#{count}_#{self.title.gsub('"',"")}"
+				count += 1
+				img.remove
+			end
+		end
 	end 
 
 	#Custom chapter reading classes
@@ -80,12 +97,12 @@ module SerialChapter #todo: Implement author method
 		def text
 			content = @doc.search("div.entry-content").first
 			content.search("div.sharedaddy").remove
-			content.search("img").remove
 			content.search("a, p").each do |link|
 				unless ([link.content] & ["Previous Chapter", "Next Chapter"]).empty?
 					link.remove
 				end
 			end
+			content.search("#SCRAPED_IMAGE_NUMBER_1_#{self.title.gsub('"',"")}").remove
 			return content.to_s
 		end
 		def title
@@ -175,6 +192,43 @@ module SerialChapter #todo: Implement author method
 		end
 	end
 
+	class SVChapter < Chapter
+		def initialize(url)
+			@doc = 		Nokogiri::HTML URI.open url
+			@url = 		url
+			postid = @url.split("/").last
+			@doc = @doc.search("article.message.hasThreadmark[data-content=#{postid}]")
+			img_sub_link(@doc)
+		end
+
+		def title
+			@doc.search("span.threadmarkLabel").first.content
+		end
+
+		def author
+			return @doc.first["data-author"]
+		end
+
+		def nextch
+				begin
+					return @doc.css("a.threadmark-control--next").first["href"]
+				rescue
+					return false
+				end
+			end
+		def prevch
+			begin
+				return @doc.css("a.threadmark-control--previous").first["href"]
+			rescue
+				return false
+			end
+		end
+
+		def text
+			return @doc.search("article.message-body div.bbWrapper").to_s
+		end
+	end
+
 
 	#Class chooser
 	def classFinder(url)
@@ -184,7 +238,8 @@ module SerialChapter #todo: Implement author method
 			"practicalguidetoevil"	=>	PGTEChapter,
 			"archiveofourown"		=>	AO3Chapter,
 			"thezombieknight"		=>	ZombieKnightPage,
-			"palewebserial"			=>	PaleChapter
+			"palewebserial"			=>	PaleChapter,
+			"sufficientvelocity"	=>	SVChapter
 		}
 		@chapclass = ""
 		patterns.keys.each do |k|
