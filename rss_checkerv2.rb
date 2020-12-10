@@ -88,7 +88,7 @@ def download_feeds(furlhash) #Hash of name=>feed url become hash of name=>feed
 			begin
 				@feedhash[key] = RssFeed::Feed.new(furlhash[key]).to_a_of_h
 			rescue OpenURI::HTTPError => feed_error
-				warn("Error - Accessing Cached Data")
+				warn("Error - Accessing Cached Data - #{key} \t[#{Time.now.inspect}]")
 				if @oldfeedhash.has_key?(key)
 					@feedhash[key] = @oldfeedhash[key]
 				else
