@@ -78,7 +78,7 @@ module SerialChapter #todo: Implement author method
 
 	class PaleChapter < Chapter
 		def text
-			content = @rawdoc.search("div.entry-content").first
+			content = @doc.search("div.entry-content").first
 			content.search("div.sharedaddy").remove
 			content.search("img").remove
 			content.search("a, p").each do |link|
