@@ -4,3 +4,4 @@ Create rss reader that works exclusively with html to remove reliance on calibre
 Add author attributions DONE
 add author attribution for royalroad (parse chapter html for author? don't want to make new classes for different types of feeds) DONE
 add test for if chapter format has changed
+Figure out how to handle images elegantly - start generating actual epub files?
