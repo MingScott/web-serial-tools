@@ -7,7 +7,6 @@ module RssFeed
 	class Feed
 		def initialize(url)
 			URI.open(url, 'User-Agent' => 'ruby') do |f|
-				puts f.status
 				@doc = Nokogiri::XML(f).css("channel").first
 			end
 		end

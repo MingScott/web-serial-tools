@@ -63,7 +63,7 @@ module SerialChapter #todo: Implement author method
 				end
 				anchor = img.add_next_sibling("<a href=\"#{link}\">#{title}</a>")
 				anchor.append_class(img.classes.join(" "))
-				anchor.first["id"] = "SCRAPED_IMAGE_NUMBER_#{count}_#{self.title.gsub('"',"")}"
+				anchor.first["id"] = "SCRAPED_IMAGE_NUMBER_#{count}_#{self.title.hash}"
 				count += 1
 				img.remove
 			end
@@ -107,7 +107,7 @@ module SerialChapter #todo: Implement author method
 				end
 			end
 			unless ([content.search("p").first.content] & ["Avery","Verona","Lucy"]).empty?
-				content.search("#SCRAPED_IMAGE_NUMBER_1_#{self.title.gsub('"',"")}").remove
+				content.search("#SCRAPED_IMAGE_NUMBER_1_#{self.title.hash}").remove
 			end
 			return content.to_s
 		end
