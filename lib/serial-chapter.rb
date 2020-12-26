@@ -224,11 +224,16 @@ module SerialChapter #todo: Implement author method
 				domain_index = @url.index("/",8)
 				find = @url[0..domain_index-1] + find
 			end
-			return find.gsub(/page-.*#/,"")
+                        out = find.split("/")
+                        out[out.length-1] = out[out.length-1].gsub(/page-.*#/,"").gsub(/[#]/,"")
+                        out = out.join("/")
+                        return out
 		end
 
 		def nextch
-			threadmark_nav("a.threadmark-control--next")
+			out = threadmark_nav("a.threadmark-control--next")
+                        puts out
+                        return out
 		end
 		def prevch
 			threadmark_nav("a.threadmark-control--previous")
