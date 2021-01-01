@@ -1,5 +1,6 @@
 {
   "username": "example@gmx.com",
   "password": "password",
-  "recipient": "example@kindle.com"
+  "recipient": "example@kindle.com",
+  "text":		"5555555555@email.gateway.com"
 }

@@ -259,6 +259,22 @@ def main
 			end
 			#puts JSON.pretty_generate @docf
 			Kindle::send_file("#{@docf[:body]}#{@docf[:ext]}",@mail_conf,@docf[:subj])
+			gmx_options = { :address 		=> "mail.gmx.com",
+	            :port                 	=> 587,
+	            :user_name            	=> @mail_conf["username"],
+	            :password             	=> @mail_conf["password"],
+	            :authentication       	=> 'plain',
+	            :enable_starttls_auto 	=> true  }
+			Mail.defaults do
+				delivery_method :smtp, gmx_options
+			end
+			begin
+				Mail.deliver do
+					to @mail_conf["text"]
+					from @mail_conf["username"]
+					body @doc["title"]
+				end
+			end
 		end
         if @single then puts "Done!"; break end
 		if @verbose then puts "Sleeping for #{@interval} seconds... \t[#{Time.now.inspect}]" else print "*" end
