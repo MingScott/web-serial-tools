@@ -239,6 +239,7 @@ def main
 			else
 				@doc["title"]
 			end
+			puts @doc["title"]
 			@docf = {
 				body: 	@tmp_dir + @fname,
 				ext: 	".html",
@@ -269,10 +270,13 @@ def main
 				delivery_method :smtp, gmx_options
 			end
 			begin
+				text = @mail_conf["text"]
+				uname = @mail_conf["username"]
+				title = @doc["title"]
 				Mail.deliver do
-					to @mail_conf["text"]
-					from @mail_conf["username"]
-					body @doc["title"]
+					to text
+					from uname
+					body title
 				end
 			end
 		end
