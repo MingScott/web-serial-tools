@@ -92,7 +92,7 @@ def download_feeds(furlhash) #Hash of name=>feed url become hash of name=>feed
 				if @oldfeedhash.has_key?(key)
 					@feedhash[key] = @oldfeedhash[key]
 				else
-					raise "HTTP error and no cached feed to fallback to"
+					warn "HTTP error and no cached feed to fallback to"
 				end
 			end
 		end
@@ -258,6 +258,7 @@ def main
 				@docf[:ext] = ".pdf"
 				@docf[:subj] = "Convert"
 			end
+
 			#puts JSON.pretty_generate @docf
 			Kindle::send_file("#{@docf[:body]}#{@docf[:ext]}",@mail_conf,@docf[:subj])
 			gmx_options = { :address 		=> "mail.gmx.com",

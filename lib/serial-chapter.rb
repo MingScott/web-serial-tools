@@ -6,10 +6,12 @@ require 'json'
 module SerialChapter #todo: Implement author method
 	#Generic chapter reading class
 	class Chapter
-		def initialize(url, useragent="ruby")
+		def initialize(url, useragent="ruby", path = Dir.getwd + "/tmp")
 			@doc = 		Nokogiri::HTML URI.open(url, {'User-Agent' => useragent})
 			@url = 		url
-			img_sub_link(@doc)
+			@path = path
+			img_import(@doc)
+			
 			custom_init
 		end
 		def custom_init
@@ -20,7 +22,7 @@ module SerialChapter #todo: Implement author method
 		end
 
 		def title ;		@doc.css("h1").first.content ; end
-		def text ; 		@doc.css("p").to_s; end
+		def text ; 		@doc.to_s; end
 		def url ;		@url; end
 		def author ;	""; end
 
@@ -68,6 +70,51 @@ module SerialChapter #todo: Implement author method
 				img.remove
 			end
 		end
+
+		def img_import(doc)
+			count = 1
+			doc.search("img").each do |img|
+				link = img["src"]
+				title = "SCRAPED_IMAGE_NUMBER_#{count}_#{self.title.hash}"
+				filetype = link.split(/[.]/).last.split("/").first.split(/[?]|[&]/).first
+				if filetype == "gif"
+					next
+				end
+				stub = "#{@path}/#{title}"
+				newpath = "#{stub}.#{filetype}"
+				img["src"] = "#{title}.jpg"
+				begin
+					if link.match? /^https[:][\/][\/].*$/
+						File.open(newpath,"w") do |file|
+							file.write URI.open(link).read
+						end
+					elsif link.match?(/^[\/]{1}[^\/].*/)
+						uri = URI.parse(@url)
+						newlink = "#{uri.scheme}://#{uri.host}#{link}"
+						File.open(newpath,"w") do |file|
+							file.write URI.open(newlink).read
+						end
+					elsif link.match? /^[\/][\/].*$/
+						newlink = "https:#{link}"
+						File.open(newpath, "w") do |f|
+							f.write URI.open(newlink).read
+						end
+					else
+						newlink = "#{@url.split("/").reverse.drop(1).reverse.join("/")}/#{link}"
+						File.open(newpath, "w") do |f|
+							f.write URI.open(newlink).read
+						end
+					end
+					if filetype != "jpg"
+						`magick "#{stub}.#{filetype}" "#{stub}.jpg"`
+					end
+					`magick "#{stub}.jpg" -quality 60 "#{stub}.jpg"`
+				rescue
+					next
+				end
+				count += 1
+			end
+		end
 	end 
 
 	#Custom chapter reading classes
@@ -106,19 +153,27 @@ module SerialChapter #todo: Implement author method
 					link.remove
 				end
 			end
-			unless ([content.search("p").first.content] & ["Avery","Verona","Lucy"]).empty?
-				content.search("#SCRAPED_IMAGE_NUMBER_1_#{self.title.hash}").remove
-			end
+			# unless ([content.search("p").first.content] & ["Avery","Verona","Lucy"]).empty?
+			# 	content.search("#SCRAPED_IMAGE_NUMBER_1_#{self.title.hash}").remove
+			# end
 			return content.to_s
 		end
 		def title
 			@doc.css("h1.entry-title").first.content
 		end
 		def nextch
-			return self.linksearch("NEXT CHAPTER")
+			begin
+				return @doc.search("span.nav-next a").first["href"]
+			rescue
+				return false
+			end
 		end
 		def prevch
-			return self.linksearch("PREVIOUS CHAPTER")
+			begin
+				return @doc.search("span.nav-previous a").first["href"]
+			rescue
+				return false
+			end
 		end
 	end
 
@@ -254,7 +309,8 @@ module SerialChapter #todo: Implement author method
 			"archiveofourown"		=>	AO3Chapter,
 			"thezombieknight"		=>	ZombieKnightPage,
 			"palewebserial"			=>	PaleChapter,
-			"sufficientvelocity"	=>	SVChapter
+			"sufficientvelocity"	=>	SVChapter,
+                        "spacebattles"          =>      SVChapter
 		}
 		@chapclass = ""
 		patterns.keys.each do |k|
