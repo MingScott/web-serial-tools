@@ -254,7 +254,8 @@ module SerialChapter #todo: Implement author method
 			"archiveofourown"		=>	AO3Chapter,
 			"thezombieknight"		=>	ZombieKnightPage,
 			"palewebserial"			=>	PaleChapter,
-			"sufficientvelocity"	=>	SVChapter
+			"sufficientvelocity"	=>	SVChapter,
+                        "spacebattles"          =>      SVChapter
 		}
 		@chapclass = ""
 		patterns.keys.each do |k|
