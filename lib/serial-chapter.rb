@@ -153,19 +153,27 @@ module SerialChapter #todo: Implement author method
 					link.remove
 				end
 			end
-			unless ([content.search("p").first.content] & ["Avery","Verona","Lucy"]).empty?
-				content.search("#SCRAPED_IMAGE_NUMBER_1_#{self.title.hash}").remove
-			end
+			# unless ([content.search("p").first.content] & ["Avery","Verona","Lucy"]).empty?
+			# 	content.search("#SCRAPED_IMAGE_NUMBER_1_#{self.title.hash}").remove
+			# end
 			return content.to_s
 		end
 		def title
 			@doc.css("h1.entry-title").first.content
 		end
 		def nextch
-			return self.linksearch("NEXT CHAPTER")
+			begin
+				return @doc.search("span.nav-next a").first["href"]
+			rescue
+				return false
+			end
 		end
 		def prevch
-			return self.linksearch("PREVIOUS CHAPTER")
+			begin
+				return @doc.search("span.nav-previous a").first["href"]
+			rescue
+				return false
+			end
 		end
 	end
 
