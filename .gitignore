@@ -2,3 +2,4 @@ mail.json
 /data/*
 /tmp/*
 /*.swp
+/conf/feeds.json.*
