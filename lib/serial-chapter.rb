@@ -331,6 +331,7 @@ module SerialChapter #todo: Implement author method
 			"thezombieknight"		=>	ZombieKnightPage,
 			"palewebserial"			=>	PaleChapter,
 			"sufficientvelocity"	=>	SVChapter,
+			"qntm"					=>	QntmChapter
 
 		}
 		@chapclass = ""
