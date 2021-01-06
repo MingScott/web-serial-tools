@@ -177,6 +177,23 @@ module SerialChapter #todo: Implement author method
 		end
 	end
 
+	class QntmChapter < Chapter
+		def text
+			content = @doc.search("div.page__outer--content").first
+			return content.to_s
+		end
+		def title
+			@doc.search("h2.page__h2").first
+		end
+		def nextch
+			false
+		end
+		def prevch
+			false
+		end
+	end
+
+
 	class WardChapter < Chapter #Ward/other wildbow works
 		def text
 			t = @doc.css("div.entry-content").first.css("p")
@@ -310,7 +327,8 @@ module SerialChapter #todo: Implement author method
 			"thezombieknight"		=>	ZombieKnightPage,
 			"palewebserial"			=>	PaleChapter,
 			"sufficientvelocity"	=>	SVChapter,
-                        "spacebattles"          =>      SVChapter
+                        "spacebattles"          =>      SVChapter,
+			"qntm"			=>	QntmChapter
 		}
 		@chapclass = ""
 		patterns.keys.each do |k|
