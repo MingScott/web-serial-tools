@@ -188,6 +188,7 @@ def populate_document(chaps)
 	@fullchapter << @output
 	@fullchapter << "</body>\n</html>"
 	@fullchapter = "\uFEFF#{@fullchapter}".encode("UTF-8")
+	@fullchapter = Emoji.replace_unicode_moji_with_images(@fullchapter)
 	return {
 		"text"	=> @fullchapter,
 		"title"	=> @title,

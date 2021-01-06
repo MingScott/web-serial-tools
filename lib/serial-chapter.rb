@@ -2,6 +2,7 @@
 require 'nokogiri'
 require 'open-uri'
 require 'json'
+require 'emoji'
 
 module SerialChapter #todo: Implement author method
 	#Generic chapter reading class
@@ -83,7 +84,9 @@ module SerialChapter #todo: Implement author method
 				stub = "#{@path}/#{title}"
 				newpath = "#{stub}.#{filetype}"
 				img["src"] = "#{title}.jpg"
-				begin
+#this logic just pries apart the different ways a source can be referred to,
+# is incomplete and just based on examples I could find
+				begin 
 					if link.match? /^https[:][\/][\/].*$/
 						File.open(newpath,"w") do |file|
 							file.write URI.open(link).read
@@ -105,10 +108,11 @@ module SerialChapter #todo: Implement author method
 							f.write URI.open(newlink).read
 						end
 					end
-					if filetype != "jpg"
+					
+					if filetype != "jpg" #there were some problems with libpng in calibre convert, so jpg it
 						`magick "#{stub}.#{filetype}" "#{stub}.jpg"`
 					end
-					`magick "#{stub}.jpg" -quality 60 "#{stub}.jpg"`
+					`magick "#{stub}.jpg" -quality 60 "#{stub}.jpg"` #reduce quality to save on filesize
 				rescue
 					next
 				end
@@ -310,7 +314,7 @@ module SerialChapter #todo: Implement author method
 			"thezombieknight"		=>	ZombieKnightPage,
 			"palewebserial"			=>	PaleChapter,
 			"sufficientvelocity"	=>	SVChapter,
-                        "spacebattles"          =>      SVChapter
+            "spacebattles"          =>  SVChapter
 		}
 		@chapclass = ""
 		patterns.keys.each do |k|
