@@ -326,8 +326,7 @@ module SerialChapter #todo: Implement author method
 
 		def nextch
 			out = threadmark_nav("a.threadmark-control--next")
-                        puts out
-                        return out
+            return out
 		end
 		def prevch
 			threadmark_nav("a.threadmark-control--previous")
