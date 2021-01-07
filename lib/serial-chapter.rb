@@ -130,7 +130,7 @@ module SerialChapter #todo: Implement author method
 					if filetype != "jpg" #there were some problems with libpng in calibre convert, so jpg it
 						`magick "#{stub}.#{filetype}" "#{stub}.jpg"`
 					end
-					`magick "#{stub}.jpg" -quality 60 "#{stub}.jpg"` #reduce quality to save on filesize
+					`magick "#{stub}.jpg" -quality 80 "#{stub}.jpg"` #reduce quality to save on filesize
 				rescue
 					next
 				end
