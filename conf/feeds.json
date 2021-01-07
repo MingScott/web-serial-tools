@@ -21,5 +21,6 @@
 	"A Simple Transaction I":	"https://forums.sufficientvelocity.com/threads/a-simple-transaction-i.66727/threadmarks.rss?threadmark_category_id=1",
 	"Threads of Destiny (Sidestory)": "https://forums.sufficientvelocity.com/threads/threads-of-destiny-eastern-fantasy-sequel-to-forge-of-destiny.51431/threadmarks.rss?threadmark_category_id=5",
 	"qntm":					"https://qntm.org/rss.php",
-	"xkcd":					"https://xkcd.com/rss.xml"
+	"xkcd":					"https://xkcd.com/rss.xml",
+	"Questionable Content":	"https://www.questionablecontent.net/QCRSS.xml"
 }
