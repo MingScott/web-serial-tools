@@ -2,7 +2,7 @@
 require 'nokogiri'
 require 'open-uri'
 require 'json'
-require 'emoji'
+# require 'emoji'
 
 module SerialChapter #todo: Implement author method
 	#Generic chapter reading class
@@ -187,7 +187,7 @@ module SerialChapter #todo: Implement author method
 			return content.to_s
 		end
 		def title
-			@doc.search("h2.page__h2").first
+			@doc.search("h2.page__h2").first.content.gsub("\t","").gsub("\n","").gsub("[ ]$","").to_s
 		end
 		def nextch
 			false

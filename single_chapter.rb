@@ -2,6 +2,8 @@
 require_relative "lib/serial-chapter"
 include SerialChapter
 require "fileutils"
+require 'emoji'
+
 @url = ARGV[0]
 # @url = "https://palewebserial.wordpress.com/2021/01/02/gone-ahead-7-9/"
 @chap_class = SerialChapter::classFinder @url
