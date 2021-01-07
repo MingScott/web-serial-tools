@@ -153,9 +153,8 @@ def populate_document(chaps)
 		@chaptitle = chaph["name"] + ": " + @localtitle
 		@chapid = @chaptitle.downcase.gsub(/[^A-Za-z0-9]/,"")
 		@toc << "\t<li><a href=\"##{@chapid}\">#{@chaptitle}</a></li><br>\n"
-		@output << "<h1 class=\"chapter\" id=\"#{@chapid}\">#{@chaptitle}</h1>\n"
+		@output << "<a href=\"#{chaph["url"]}\"><h1 class=\"chapter\" id=\"#{@chapid}\">#{@chaptitle}</h1></a>\n"
 		@output << "<i>" + chaph["date"] + "</i><br>\n"
-		@output << "<a href=\"#{chaph["url"]}\">Webpage</a>\n"
 		@output << "<i>#{@authorstring}</i><br>" unless @authorstring.empty?
 		@output << chap.text + "\n"
 		
@@ -275,10 +274,11 @@ def main
 				text = @mail_conf["text"]
 				uname = @mail_conf["username"]
 				title = @doc["title"]
+
 				Mail.deliver do
 					to text
 					from uname
-					body title
+					body "#{title}"
 				end
 			end
 		end
