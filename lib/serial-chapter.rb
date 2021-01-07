@@ -2,7 +2,7 @@
 require 'nokogiri'
 require 'open-uri'
 require 'json'
-# require 'emoji'
+require 'gemoji'
 
 module SerialChapter #todo: Implement author method
 	#Generic chapter reading class
@@ -11,11 +11,23 @@ module SerialChapter #todo: Implement author method
 			@doc = 		Nokogiri::HTML URI.open(url, {'User-Agent' => useragent})
 			@url = 		url
 			@path = path
+			@doc =		Nokogiri::HTML self.demoji(@doc.to_s)
 			img_import(@doc)
 			
 			custom_init
 		end
 		def custom_init
+		end
+
+		def demoji(str)
+			moji = str.split("").map do |char|
+				if char.match?(/\p{Emoji_Presentation}/) && ! Emoji.find_by_unicode(char).nil?
+					char = ":#{Emoji.find_by_unicode(char).name}:"
+				else
+					char
+				end
+			end
+			moji.join("")
 		end
 
 		def to_s
