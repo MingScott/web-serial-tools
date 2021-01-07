@@ -95,10 +95,10 @@ module SerialChapter #todo: Implement author method
 				end
 				stub = "#{@path}/#{title}"
 				newpath = "#{stub}.#{filetype}"
-				if img.to_h.has_key("alt")
+				if img.to_h.has_key?("alt")
 					img.add_next_sibling("<p>#{img["alt"]}</p>")
 				end
-				if img.to_h.has_key("title")
+				if img.to_h.has_key?("title")
 					img.add_next_sibling("<p>#{img["title"]}</p>")
 				end
 				img["src"] = "#{title}.jpg"
