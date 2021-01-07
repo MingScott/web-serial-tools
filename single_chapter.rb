@@ -13,6 +13,8 @@ rescue => error
 	puts error
 end
 
+puts @chap.title
+
 File.open("tmp/#{@chap.title}.html","w") do |f|
 	output = <<-EOF
 <!DOCTYPE html>
@@ -34,4 +36,4 @@ EOF
 	f.print output
 end
 
-`ebook-convert --author "#{@chap.author}" "tmp/#{@chap.title}.html" "tmp/#{@chap.title}.mobi"`
+`ebook-convert "tmp/#{@chap.title}.html" "tmp/#{@chap.title}.mobi" --authors "#{@chap.author}"`
