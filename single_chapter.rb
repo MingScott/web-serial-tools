@@ -29,4 +29,4 @@ EOF
 	f.print output
 end
 
-`ebook-convert "tmp/#{@chap.title}.html" "tmp/#{@chap.title}.mobi"`
+`ebook-convert --author "#{@chap.author}" "tmp/#{@chap.title}.html" "tmp/#{@chap.title}.mobi"`
