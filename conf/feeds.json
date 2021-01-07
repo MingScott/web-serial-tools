@@ -14,11 +14,12 @@
 	"The Zombie Knight":	"https://thezombieknight.blogspot.com/feeds/posts/default?alt=rss",
 	"Tower of Somnus":		"https://www.royalroad.com/fiction/syndication/36983",
 	"Doing God's Work":		"https://www.royalroad.com/fiction/syndication/25442",
-	"Fluff":			"https://www.royalroad.com/fiction/syndication/35958",
+	"Fluff":				"https://www.royalroad.com/fiction/syndication/35958",
 	"The Perfect Run":		"https://www.royalroad.com/fiction/syndication/36735",
-	"Super Minion":		"https://www.royalroad.com/fiction/syndication/21410",
+	"Super Minion":			"https://www.royalroad.com/fiction/syndication/21410",
 	"Threads of Destiny (Quest)":	"https://forums.sufficientvelocity.com/threads/threads-of-destiny-eastern-fantasy-sequel-to-forge-of-destiny.51431/threadmarks.rss?threadmark_category_id=1",
 	"A Simple Transaction I":	"https://forums.sufficientvelocity.com/threads/a-simple-transaction-i.66727/threadmarks.rss?threadmark_category_id=1",
 	"Threads of Destiny (Sidestory)": "https://forums.sufficientvelocity.com/threads/threads-of-destiny-eastern-fantasy-sequel-to-forge-of-destiny.51431/threadmarks.rss?threadmark_category_id=5",
-	"qntm":			"https://qntm.org/rss.php"
+	"qntm":					"https://qntm.org/rss.php",
+	"xkcd":					"https://xkcd.com/rss.xml"
 }
