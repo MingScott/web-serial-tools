@@ -18,7 +18,11 @@ File.open("tmp/#{@chap.title}.html","w") do |f|
 <!DOCTYPE html>
 <html>
 <head>
-	<title></title>
+	<title>
+EOF
+	output << @chap.title
+	output << <<-EOF
+</title>
 </head>
 <body>
 
