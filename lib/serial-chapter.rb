@@ -337,6 +337,31 @@ module SerialChapter #todo: Implement author method
 		end
 	end
 
+	class XKCDComic < Chapter
+		def title
+			@doc.search("#ctitle").first.content
+		end
+		def text
+			@doc.search("#comic").first.to_s
+		end
+
+		def nextch
+			begin
+				return @doc.css("a[nav=next]").first["href"]
+			rescue
+				return false
+			end
+		end
+		def prevch
+			begin
+				return @doc.css("a[nav=prev]").first["href"]
+			rescue
+				return false
+			end
+		end
+	end
+
+
 
 	#Class chooser
 	def classFinder(url)
@@ -348,7 +373,8 @@ module SerialChapter #todo: Implement author method
 			"thezombieknight"		=>	ZombieKnightPage,
 			"palewebserial"			=>	PaleChapter,
 			"sufficientvelocity"	=>	SVChapter,
-			"qntm"					=>	QntmChapter
+			"qntm"					=>	QntmChapter,
+			"xkcd"					=>	XKCDComic
 
 		}
 		@chapclass = ""
