@@ -348,7 +348,7 @@ module SerialChapter #todo: Implement author method
 		}
 		@chapclass = ""
 		patterns.keys.each do |k|
-			@chapclass = if url.include? k
+			@chapclass = if url.match? k
 				patterns[k]
 			else
 				@chapclass
