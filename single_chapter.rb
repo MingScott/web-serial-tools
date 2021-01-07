@@ -27,7 +27,8 @@ EOF
 <body>
 
 EOF
-	output << "<h1>#{@chap.title}</h1>"
+	output << "<a href=\"#{@chap.url}\">"
+	output << "<h1>#{@chap.title}</h1></a>"
 	output << @chap.text
 	output << "</body></html>"
 	f.print output
