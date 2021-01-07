@@ -344,6 +344,9 @@ module SerialChapter #todo: Implement author method
 		def text
 			@doc.search("#comic").first.to_s
 		end
+		def author
+			"Randall Munroe"
+		end
 
 		def nextch
 			begin
