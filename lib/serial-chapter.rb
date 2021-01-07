@@ -115,6 +115,13 @@ module SerialChapter #todo: Implement author method
 						File.open(newpath,"w") do |file|
 							file.write URI.open(newlink).read
 						end
+					elsif link.match?(/^[.][\/]{1}[^\/].*/)
+						uri = URI.parse(@url)
+						newlink = link.reverse.chop.reverse
+						newlink = "#{uri.scheme}://#{uri.host}#{newlink}"
+						File.open(newpath,"w") do |file|
+							file.write URI.open(newlink).read
+						end
 					elsif link.match? /^[\/][\/].*$/
 						newlink = "https:#{link}"
 						File.open(newpath, "w") do |f|
@@ -364,6 +371,32 @@ module SerialChapter #todo: Implement author method
 		end
 	end
 
+	class QCComic < Chapter
+		def text
+			return @doc.search("#strip").first.to_s
+		end
+		def title
+			return "QC#{URI.parse(@url).query.split("=").last}"
+		end
+		def author
+			"Jeph Jacques"
+		end
+		def prevch
+			begin
+				return @doc.css("#comicnav").first.children[1].search("a").first
+			rescue
+				return false
+			end
+		end
+		def nextch
+			begin
+				return @doc.css("#comicnav").first.children[2].search("a").first
+			rescue
+				return false
+			end
+		end
+	end
+
 
 
 	#Class chooser
@@ -377,7 +410,8 @@ module SerialChapter #todo: Implement author method
 			"palewebserial"			=>	PaleChapter,
 			"sufficientvelocity"	=>	SVChapter,
 			"qntm"					=>	QntmChapter,
-			"xkcd"					=>	XKCDComic
+			"xkcd"					=>	XKCDComic,
+			"questionablecontent"	=>	QCComic
 
 		}
 		@chapclass = ""
