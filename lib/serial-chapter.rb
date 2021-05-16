@@ -93,7 +93,7 @@ module SerialChapter #todo: Implement author method
 				end
 				title = "SCRAPED_IMAGE_NUMBER_#{count}_#{self.title.hash}"
 				filetype = link.split(/[.]/).last.split("/").first.split(/[?]|[&]/).first
-				if filetype == "gif"
+				if not ["jpg","png"].include? filetype
 					next
 				end
 				stub = "#{@path}/#{title}"
