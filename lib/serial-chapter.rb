@@ -230,6 +230,43 @@ module SerialChapter #todo: Implement author method
 		end
 	end
 
+	class TwigChapter < Chapter #Twig
+		def initialize(url, useragent="ruby", path = Dir.getwd + "/tmp")
+			@doc = 		Nokogiri::HTML URI.open(url, {'User-Agent' => useragent})
+			@url = 		url
+			@path = path
+			@doc =		Nokogiri::HTML self.demoji(@doc.to_s)
+			
+			custom_init
+		end
+		def title
+			return @doc.css("h1.entry-title").first.content
+		end
+		def text
+			t = @doc.css("div.entry-content").first.css("p")
+			t.search("a, p").each do |link|
+				unless ([link.content] & ["Previous", "Next"]).empty?
+					link.remove
+				end
+			end
+			return t[0..t.length-1].to_s
+		end
+		def nextch
+			begin
+				return @doc.search("div.nav-next a").first["href"]
+			rescue
+				return false
+			end
+		end
+		def prevch
+			begin
+				return @doc.search("div.nav-previous a").first["href"]
+			rescue
+				return false
+			end
+		end
+	end
+
 	class PGTEChapter < Chapter #Practical Guide to Evil
 		def title
 			return @doc.css("h1.entry-title").first.content
@@ -404,6 +441,7 @@ module SerialChapter #todo: Implement author method
 		patterns = {
 			"royalroad" 			=>	RRChapter,
 			"parahumans" 			=>	WardChapter,
+			"twigserial"			=>	TwigChapter,
 			"practicalguidetoevil"	=>	PGTEChapter,
 			"archiveofourown"		=>	AO3Chapter,
 			"thezombieknight"		=>	ZombieKnightPage,
