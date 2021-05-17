@@ -88,9 +88,12 @@ module SerialChapter #todo: Implement author method
 			count = 1
 			doc.search("img").each do |img|
 				link = img["src"]
+				if link.nil?
+					next
+				end
 				title = "SCRAPED_IMAGE_NUMBER_#{count}_#{self.title.hash}"
 				filetype = link.split(/[.]/).last.split("/").first.split(/[?]|[&]/).first
-				if filetype == "gif"
+				if not ["jpg","png"].include? filetype
 					next
 				end
 				stub = "#{@path}/#{title}"

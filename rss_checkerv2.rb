@@ -65,6 +65,9 @@ end
 
 @interval		= if ARGV.empty? then 30 else ARGV[0].to_i end
 @feed_url_hash 	= JSON.parse File.read @feed_list
+puts @feed_url_hash
+@feed_url_hash	= Hash[@feed_url_hash.to_a.sample(@feed_url_hash.length)]
+puts @feed_url_hash
 @mail_conf 		= JSON.parse File.read @mail_json
 #puts @mail_conf
 
