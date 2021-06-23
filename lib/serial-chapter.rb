@@ -167,9 +167,13 @@ module SerialChapter #todo: Implement author method
 					n.remove if ([n.name] & ["p","div"]).empty?
 				end
 			end
+
 			doc.css("portlet")
 			cf_decode(doc)
-			return doc.first.to_s
+			stringdoc = doc.first.to_s
+			stringdoc.gsub!("<table","<p")
+			stringdoc.gsub!("</table>","</p>")
+			return stringdoc
 		end 
 		def author
 			@doc.css("meta[name*=creator]").first["content"]
