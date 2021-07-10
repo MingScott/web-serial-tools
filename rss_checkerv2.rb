@@ -85,20 +85,27 @@ def download_feeds(furlhash) #Hash of name=>feed url become hash of name=>feed
 		@oldfeedhash = JSON.parse File.read @feed_data
 	end
 	begin
-		if @verbose then puts "Downloading feeds... \t[#{Time.now.inspect}]" end
+		if @verbose
+			puts "Downloading feeds... \t[#{Time.now.inspect}]"
+		end
+
+		threads = []
 		furlhash.keys.each do |key|
-			if @verbose then puts "Checking " + key end
-			begin
-				@feedhash[key] = RssFeed::Feed.new(furlhash[key]).to_a_of_h
-			rescue OpenURI::HTTPError => feed_error
-				warn("Error - Accessing Cached Data - #{key} \t[#{Time.now.inspect}]")
-				if @oldfeedhash.has_key?(key)
-					@feedhash[key] = @oldfeedhash[key]
-				else
-					warn "HTTP error and no cached feed to fallback to"
+			threads << Thread.new do
+				if @verbose then puts "Checking " + key end
+				begin
+					@feedhash[key] = RssFeed::Feed.new(furlhash[key]).to_a_of_h
+				rescue OpenURI::HTTPError => feed_error
+					warn("Error - Accessing Cached Data - #{key} \t[#{Time.now.inspect}]")
+					if @oldfeedhash.has_key?(key)
+						@feedhash[key] = @oldfeedhash[key]
+					else
+						warn "HTTP error and no cached feed to fallback to"
+					end
 				end
 			end
 		end
+		threads.map(&:join)
 	rescue => outer_feed_error
 		warn outer_feed_error
         warn "Unable to download feeds \t[#{Time.now.inspect}]"
@@ -214,18 +221,22 @@ def main
                 # puts "CONPARISON TEST"
                 # @new_flist.keys.each { |f| puts JSON.pretty_generate(@new_flist[f] - @old_flist[f]) }
 
+        threads = []
 		@new_flist.keys.each do |feed|
-			if @verbose then puts "Checking #{feed}...  \t[#{Time.now.inspect}]" end
-			if @old_flist.include? feed
-				@delta = @new_flist[feed] - @old_flist[feed]
-				if not @delta.empty?
-					@delta.each {|i| @newchaps << i}
-					if @verbose
-						puts "New chapter in #{feed}...  \t[#{Time.now.inspect}]"
+			threads << Thread.new do
+				if @verbose then puts "Checking #{feed}...  \t[#{Time.now.inspect}]" end
+				if @old_flist.include? feed
+					@delta = @new_flist[feed] - @old_flist[feed]
+					if not @delta.empty?
+						@delta.each {|i| @newchaps << i}
+						if @verbose
+							puts "New chapter in #{feed}...  \t[#{Time.now.inspect}]"
+						end
 					end
 				end
 			end
 		end
+		threads.map(&:join)
                 
 		save_feeds @new_flist
 		@old_flist = @new_flist
