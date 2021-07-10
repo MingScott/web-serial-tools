@@ -85,7 +85,11 @@ def download_feeds(furlhash) #Hash of name=>feed url become hash of name=>feed
 		@oldfeedhash = JSON.parse File.read @feed_data
 	end
 	begin
-		if @verbose then puts "Downloading feeds... \t[#{Time.now.inspect}]" end
+		if @verbose
+			puts "Downloading feeds... \t[#{Time.now.inspect}]"
+		end
+
+		
 		furlhash.keys.each do |key|
 			if @verbose then puts "Checking " + key end
 			begin
