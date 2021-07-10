@@ -111,7 +111,7 @@ author = cover.css("h4[property=author] a").inner_text
 ch1 = classFinder(url)
 ch1 = ch1.new url
 book = Book.new ch1, title, author
-filename = title.gsub(/[' ]/,"_")
+filename = title.gsub(/[^a-zA-Z0-9]/,"_")
 book.write_to_file path + filename + ".html"
 book.convert_to_mobi
 publish book, email, password, kindle unless kindle.empty?
