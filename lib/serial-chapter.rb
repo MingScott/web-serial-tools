@@ -92,7 +92,6 @@ module SerialChapter #todo: Implement author method
 					next
 				end
 				title = "SCRAPED_IMAGE_NUMBER_#{count}_#{self.title.hash}"
-				p link
 				filetype = link.split(/[.]/).last.split("/").first.split(/[?]|[&]/).first
 				if not ["jpg","png"].include? filetype
 					next
