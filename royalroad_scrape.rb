@@ -15,6 +15,7 @@ kindle = ""
 email = ""
 password = ""
 path = "tmp/"
+cover = ""
 OptionParser.new do |o|
 	o.banner = ""
 	o.on("-t", "--to EMAIL", "email address to send to") do |k|
@@ -29,6 +30,16 @@ OptionParser.new do |o|
 	o.on("-d","--directory PATH", "Directory to write files to") do |d|
 		path = d
 		path = path + '/' unless path[-1] == '/' || path.empty?
+	end
+	o.on("-n", "--name NAME", "Name of the work") do |n|
+		root = "https://www.royalroad.com"
+		searchTemplate = root+"/fictions/search?title="
+		searchTerms = n
+
+		searchUrl = searchTemplate+searchTerms
+		doc = Nokogiri::HTML URI.open(searchUrl)
+		item = root+doc.css("div.fiction-list div.fiction-list-item").css("a").first["href"]
+		cover = Nokogiri::HTML URI.open(item)
 	end
 end.parse!
 
@@ -102,8 +113,9 @@ def publish(book, email, password, kindle)
 	  add_file book.mobi
 	end
 end
-
-cover = Nokogiri::HTML URI.open(ARGV[0])
+if cover == ""
+	cover = Nokogiri::HTML URI.open(ARGV[0])
+end
 url = "https://www.royalroad.com" + cover.css("a.btn-primary.btn-lg").attribute("href")
 title = cover.css("h1[property=name]").inner_text
 author = cover.css("h4[property=author] a").inner_text
